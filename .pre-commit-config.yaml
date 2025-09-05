@@ -1,0 +1,32 @@
+default_language_version:
+    python: python3.13 # TODO: Update if it's required
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+    -   id: check-merge-conflict
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.12.7
+    hooks:
+    -   id: ruff
+        args: [ --fix,--config=src/ruff.toml ]
+    -   id: ruff-format
+        args: [ --config=src/ruff.toml ]
+-   repo: local
+    hooks:
+    -   id: pylint
+        name: pylint
+        entry: pylint
+        language: system
+        pass_filenames: false
+        types: [python]
+        args:
+            [
+                "app",
+                "--disable=R",
+                "--rcfile=src/.pylintrc",
+                # NOTE: Next line prevents next error "app:1:0: F0001: No module named app (fatal)"
+                "--init-hook=import sys; sys.path.append('src')",
+            ]

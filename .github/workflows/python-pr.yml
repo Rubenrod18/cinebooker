@@ -1,0 +1,67 @@
+name: Integrity checks
+
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    strategy:
+      max-parallel: 4
+
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout code from the repository
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install System Dependencies
+        run: |
+          apt-get update && apt-get install --assume-yes gcc libpq-dev
+          python -m pip install --upgrade pip
+          pip install uv
+        working-directory: ${{ env.working-directory }}
+
+      - name: Install dependencies
+        run: |
+          uv sync --dev
+        working-directory: ${{ env.working-directory }}
+
+      - name: Set up .env file
+        run: cp .env.example .env
+
+      - name: Ruff linter
+        uses: astral-sh/ruff-action@v3
+        with:
+          version: "latest"
+          args: 'check --config=./src/ruff.toml'
+
+      - name: Ruff format
+        uses: astral-sh/ruff-action@v3
+        with:
+          version: "latest"
+          args: 'format --check --config=./src/ruff.toml'
+
+      - name: Run tests with make
+        run: |
+          make test
+        working-directory: ${{ env.working-directory }}
+
+    env:
+      working-directory: ./src

@@ -1,0 +1,27 @@
+[project]
+name = "cinebooker"
+version = "0.0.0"
+description = "Add your description here"
+requires-python = ">=3.13"
+dependencies = [
+    "alembic>=1.14.1",
+    "asyncpg>=0.30.0",
+    "bcrypt>=4.3.0",
+    "dependency-injector>=4.46.0",
+    "fastapi[standard]>=0.115.11",
+    "psycopg2>=2.9.10",
+    "pydantic-settings>=2.8.1",
+    "python-dotenv>=1.0.1",
+    "sqlmodel>=0.0.23",
+    "uvicorn[standard]>=0.34.0",
+]
+
+[dependency-groups]
+dev = [
+    "coverage>=7.10.1",
+    "factory-boy>=3.3.3",
+    "faker>=36.1.1",
+    "pre-commit>=4.2.0",
+    "pylint>=3.3.7",
+    "pytest>=8.3.5",
+]
