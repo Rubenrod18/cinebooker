@@ -4,10 +4,10 @@ from decimal import Decimal
 import sqlalchemy as sa
 from sqlmodel import Field, Relationship, SQLModel
 
-from . import core as c
+from . import core
 
 
-class Discount(c.IntegerPKMixin, c.InactiveMixin, c.CreatedUpdatedMixin, SQLModel, table=True):
+class Discount(core.IntegerPKMixin, core.InactiveMixin, core.CreatedUpdatedMixin, SQLModel, table=True):
     __tablename__ = 'discount'
 
     code: str = Field(unique=True)

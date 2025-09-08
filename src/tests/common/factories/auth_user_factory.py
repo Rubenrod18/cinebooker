@@ -8,7 +8,7 @@ import factory
 from app.helpers.password_handler import PasswordHandler
 from app.models import AuthUser
 
-from ...conftest import faker
+from ...conftest import fake
 from .base_factory import BaseFactory
 
 
@@ -26,7 +26,7 @@ class AuthUserFactory(BaseFactory):
 
     @factory.lazy_attribute
     def date_joined(self):
-        return faker.date_time_between(start_date='-3y', end_date='now')
+        return fake.date_time_between(start_date='-3y', end_date='now')
 
     @factory.lazy_attribute
     def last_login(self):

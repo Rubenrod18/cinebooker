@@ -1,15 +1,11 @@
-import logging
 import os
 import typing as t
-from collections.abc import Callable
-from contextlib import AbstractContextManager, contextmanager
 
 from sqlalchemy import create_engine, orm
 from sqlalchemy.orm import Session
 
 from config import get_settings
 
-logger = logging.getLogger(__name__)
 settings = get_settings()
 _S = t.TypeVar('_S', bound='Session')
 
@@ -29,19 +25,6 @@ class SQLDatabase:
     @property
     def session_factory(self) -> t.Generic[_S]:
         return self._session_factory
-
-    @contextmanager
-    def session(self) -> Callable[..., AbstractContextManager[Session]]:
-        session: Session = self._session_factory()
-        try:
-            yield session
-            session.commit()
-        except Exception:
-            logger.exception('Session rollback because of exception')
-            session.rollback()
-            raise
-        finally:
-            session.close()
 
 
 def get_session() -> Session:
