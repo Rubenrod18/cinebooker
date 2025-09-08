@@ -32,7 +32,7 @@ class SoftDeleteMixin(SQLModel):
 
     deleted_at: datetime | None = Field(default=None)
 
-    # ClassVar ensures Pydantic ignores these
+    # NOTE: ClassVar ensures Pydantic ignores these
     is_deleted: ClassVar[hybrid_property]
     is_not_deleted: ClassVar[hybrid_property]
 

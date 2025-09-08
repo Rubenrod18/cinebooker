@@ -10,5 +10,5 @@ class CustomerFactory(BaseFactory):
     class Meta:
         model = Customer
 
-    birthdate = factory.Faker('date_between', start_date='-30y', end_date='-5y')
+    birth_date = factory.Faker('date_between', start_date='-30y', end_date='-5y')
     auth_user = factory.SubFactory(AuthUserFactory)

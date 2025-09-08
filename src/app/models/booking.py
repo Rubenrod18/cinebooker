@@ -7,7 +7,7 @@ import sqlalchemy as sa
 from sqlmodel import Field, Relationship, SQLModel
 
 from ..utils.constants import BaseEnum
-from . import core as c
+from . import core
 
 
 class BookingStatus(BaseEnum):
@@ -17,7 +17,7 @@ class BookingStatus(BaseEnum):
     EXPIRED = 'expired'
 
 
-class Booking(c.UUIDPKMixin, c.CreatedUpdatedMixin, SQLModel, table=True):
+class Booking(core.UUIDPKMixin, core.CreatedUpdatedMixin, SQLModel, table=True):
     __tablename__ = 'booking'
 
     customer_id: int = Field(foreign_key='customer.id')
@@ -47,7 +47,7 @@ class Booking(c.UUIDPKMixin, c.CreatedUpdatedMixin, SQLModel, table=True):
     invoice: Optional['Invoice'] = Relationship(back_populates='booking')
 
 
-class BookingSeat(c.IntegerPKMixin, SQLModel, table=True):
+class BookingSeat(core.IntegerPKMixin, SQLModel, table=True):
     __tablename__ = 'booking_seat'
 
     booking_id: UUID = Field(foreign_key='booking.id')

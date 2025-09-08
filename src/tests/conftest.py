@@ -9,17 +9,17 @@ from dotenv import find_dotenv, load_dotenv
 from faker import Faker
 from faker.providers import date_time
 from fastapi.testclient import TestClient
-from sqlmodel import SQLModel
 from typer.testing import CliRunner
 
 from app import create_app
 from app.cli import CreateDatabaseCli
+from app.models.core import IntegerPKMixin, UUIDPKMixin
 from database import get_session
 
 logger = logging.getLogger(__name__)
 
-faker = Faker()
-faker.add_provider(date_time)
+fake = Faker()
+fake.add_provider(date_time)
 
 
 class _CustomTestClient(TestClient):
@@ -79,7 +79,7 @@ def pytest_configure():
 
 @pytest.fixture(scope='function', autouse=True)
 def setup_database():
-    def create_new_sqlalchemy_session() -> tuple[str, sa.Engine]:
+    def create_new_sqlalchemy_session() -> tuple[str, sa.Engine, str]:
         test_db_uri = f'{os.environ["SQLALCHEMY_DATABASE_URI"]}_{uuid.uuid4().hex}'
         test_engine = sa.create_engine(test_db_uri)
         session.configure(bind=test_engine)
@@ -91,10 +91,11 @@ def setup_database():
         seeder_cli.run_command()
 
         with engine.begin() as conn:
-            SQLModel.metadata.create_all(conn)
+            IntegerPKMixin.metadata.create_all(conn)
+            UUIDPKMixin.metadata.create_all(conn)
 
     def drop_db(engine: sa.Engine):
-        db_name_to_drop = os.environ['SQLALCHEMY_DATABASE_URI'].rsplit('/', 1)[1]
+        db_name_to_drop = engine.url.database
         neutral_engine_url = engine.url.set(database='postgres')
         neutral_engine = sa.create_engine(neutral_engine_url, echo=True)
 
@@ -138,3 +139,8 @@ def client(app):
 def runner():
     """Provide a Typer CLI runner."""
     return CliRunner()
+
+
+@pytest.fixture(scope='session')
+def faker():
+    return fake

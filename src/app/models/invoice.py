@@ -5,7 +5,7 @@ import sqlalchemy as sa
 from sqlmodel import Field, Relationship, SQLModel
 
 from ..utils.constants import BaseEnum
-from . import core as c
+from . import core
 
 
 class InvoiceStatus(BaseEnum):
@@ -14,7 +14,7 @@ class InvoiceStatus(BaseEnum):
     REFUNDED = 'refunded'
 
 
-class Invoice(c.IntegerPKMixin, c.CreatedUpdatedMixin, table=True):
+class Invoice(core.IntegerPKMixin, core.CreatedUpdatedMixin, table=True):
     __tablename__ = 'invoice'
 
     booking_id: UUID = Field(foreign_key='booking.id')
@@ -41,7 +41,7 @@ class Invoice(c.IntegerPKMixin, c.CreatedUpdatedMixin, table=True):
     invoice_items: list['InvoiceItem'] | None = Relationship(back_populates='invoice')
 
 
-class InvoiceItem(c.IntegerPKMixin, c.CreatedUpdatedMixin, SQLModel, table=True):
+class InvoiceItem(core.IntegerPKMixin, core.CreatedUpdatedMixin, SQLModel, table=True):
     __tablename__ = 'invoice_item'
 
     invoice_id: int = Field(foreign_key='invoice.id')
