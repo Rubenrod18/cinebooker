@@ -16,12 +16,8 @@ class AuthUserRepository(
         super().__init__(model=AuthUser, session=session)
 
     def create(self, **kwargs) -> AuthUser:
-        auto_flush = kwargs.pop('auto_flush', True)
         kwargs['password'] = PasswordHandler.ensure_password(kwargs.pop('password'))
         auth_user = self.model(**kwargs)
-
-        if auto_flush:
-            self.session.add(auth_user)
-            self.session.flush()
-
+        self.session.add(auth_user)
+        self.session.flush()
         return auth_user

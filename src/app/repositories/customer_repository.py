@@ -15,11 +15,8 @@ class CustomerRepository(
         super().__init__(model=Customer, session=session)
 
     def create(self, **kwargs) -> Customer:
-        auto_flush = kwargs.pop('auto_flush', True)
+        # auto_flush = kwargs.pop('auto_flush', True)
         customer = self.model(**kwargs)
-
-        if auto_flush:
-            self.session.add(customer)
-            self.session.flush()
-
+        self.session.add(customer)
+        self.session.flush()
         return customer
