@@ -1,11 +1,11 @@
 import os
 
 from app.models import AuthUser, Customer
-from tests.acceptance.routers.customers._base_customers_test import _TestBaseCustomerEndpoints
+from tests.acceptance.routers.customer._base_customers_test import _TestBaseCustomerEndpoints
 
 
 # pylint: disable=attribute-defined-outside-init
-class TestCreateCustomer(_TestBaseCustomerEndpoints):
+class TestCreateCustomerEndpoint(_TestBaseCustomerEndpoints):
     def test_create_customer(self):
         payload = {
             'first_name': self.faker.first_name(),

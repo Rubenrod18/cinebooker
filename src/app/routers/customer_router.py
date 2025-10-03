@@ -31,7 +31,7 @@ router = APIRouter(prefix='/customers', tags=['customers'])
     },
 )
 @inject
-def create_customer(
+def create_customer_route(
     payload: customer_schemas.CustomerCreateSchema,
     session: Annotated[Session, Depends(Provide[ServiceDIContainer.session])],
     auth_user_service: Annotated[AuthUserService, Depends(Provide[ServiceDIContainer.auth_user_service])],

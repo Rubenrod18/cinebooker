@@ -14,7 +14,7 @@ from typer.testing import CliRunner
 from app import create_app
 from app.cli import CreateDatabaseCli
 from app.models.core import IntegerPKMixin, UUIDPKMixin
-from database import get_session
+from tests.common.factories.base_factory import BaseFactory
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +59,10 @@ class _CustomTestClient(TestClient):
         exp_code = kwargs.pop('exp_code', 200)
         return self._make_request(exp_code, *args, method='GET', **kwargs)
 
+    def patch(self, *args, **kwargs):
+        exp_code = kwargs.pop('exp_code', 200)
+        return self._make_request(exp_code, *args, method='PATCH', **kwargs)
+
     def post(self, *args, **kwargs):
         exp_code = kwargs.pop('exp_code', 201)
         return self._make_request(exp_code, *args, method='POST', **kwargs)
@@ -79,7 +83,7 @@ def pytest_configure():
 
 @pytest.fixture(scope='function', autouse=True)
 def setup_database():
-    def create_new_sqlalchemy_session() -> tuple[str, sa.Engine, str]:
+    def create_new_sqlalchemy_session(session: sa.orm.Session) -> tuple[str, sa.Engine, str]:
         test_db_uri = f'{os.environ["SQLALCHEMY_DATABASE_URI"]}_{uuid.uuid4().hex}'
         test_engine = sa.create_engine(test_db_uri)
         session.configure(bind=test_engine)
@@ -94,7 +98,7 @@ def setup_database():
             IntegerPKMixin.metadata.create_all(conn)
             UUIDPKMixin.metadata.create_all(conn)
 
-    def drop_db(engine: sa.Engine):
+    def drop_db(engine: sa.Engine, session: sa.orm.Session):
         db_name_to_drop = engine.url.database
         neutral_engine_url = engine.url.set(database='postgres')
         neutral_engine = sa.create_engine(neutral_engine_url, echo=True)
@@ -115,11 +119,11 @@ def setup_database():
             session.remove()
             neutral_engine.dispose()
 
-    session = get_session()
-    db_uri, sa_engine, test_db_uri = create_new_sqlalchemy_session()
+    sqlalchemy_session = BaseFactory.get_db_session()
+    db_uri, sa_engine, test_db_uri = create_new_sqlalchemy_session(sqlalchemy_session)
     create_db(sa_engine, test_db_uri)
     yield test_db_uri
-    drop_db(sa_engine)
+    drop_db(sa_engine, sqlalchemy_session)
     os.environ['SQLALCHEMY_DATABASE_URI'] = db_uri
 
 

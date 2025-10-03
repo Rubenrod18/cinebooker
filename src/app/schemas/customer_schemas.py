@@ -3,11 +3,7 @@ from datetime import date
 from pydantic import BaseModel, computed_field, ConfigDict, Field, model_validator
 
 from . import core
-from .auth_user_schemas import AuthUserSchema
-
-
-class CustomerCreateFields(BaseModel):
-    birth_date: date
+from .auth_schemas import AuthUserSchema
 
 
 class CustomerCreateSchema(BaseModel):

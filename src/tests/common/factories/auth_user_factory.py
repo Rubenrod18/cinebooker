@@ -35,3 +35,9 @@ class AuthUserFactory(BaseFactory):
     @factory.lazy_attribute
     def inactive_at(self):
         return random.choice([self.date_joined + timedelta(days=2), None])
+
+
+class EnabledAuthUserFactory(AuthUserFactory):
+    @factory.lazy_attribute
+    def inactive_at(self):
+        return None
