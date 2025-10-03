@@ -24,7 +24,7 @@ services:
 
   db:
     << : *app-common
-    image: postgres:17
+    image: postgres:18
     container_name: cinebooker__db
     ports:
       - "5432:5432"
