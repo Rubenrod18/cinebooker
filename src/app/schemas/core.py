@@ -7,7 +7,7 @@ from app.utils.constants import DEFAULT_DATETIME_FORMAT
 
 
 class IntegerPKMixin:
-    id: UUID
+    id: int
 
 
 class UUIDPKMixin:

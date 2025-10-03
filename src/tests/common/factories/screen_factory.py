@@ -21,3 +21,13 @@ class ScreenFactory(BaseFactory):
     @factory.lazy_attribute
     def inactive_at(self):
         return random.choice([self.created_at + timedelta(days=2), None])
+
+
+class EnabledScreenFactory(ScreenFactory):
+    inactive_at = None
+
+
+class DisabledScreenFactory(ScreenFactory):
+    @factory.lazy_attribute
+    def inactive_at(self):
+        return self.created_at + timedelta(days=2)

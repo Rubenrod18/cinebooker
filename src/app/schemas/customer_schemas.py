@@ -6,10 +6,6 @@ from . import core
 from .auth_schemas import AuthUserSchema
 
 
-class CustomerCreateFields(BaseModel):
-    birth_date: date
-
-
 class CustomerCreateSchema(BaseModel):
     first_name: str
     last_name: str

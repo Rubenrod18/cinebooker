@@ -59,6 +59,10 @@ class _CustomTestClient(TestClient):
         exp_code = kwargs.pop('exp_code', 200)
         return self._make_request(exp_code, *args, method='GET', **kwargs)
 
+    def patch(self, *args, **kwargs):
+        exp_code = kwargs.pop('exp_code', 200)
+        return self._make_request(exp_code, *args, method='PATCH', **kwargs)
+
     def post(self, *args, **kwargs):
         exp_code = kwargs.pop('exp_code', 201)
         return self._make_request(exp_code, *args, method='POST', **kwargs)

@@ -1,3 +1,4 @@
+import uuid
 from abc import ABC, abstractmethod
 from typing import Any
 
@@ -17,6 +18,18 @@ class AbstractCreateService(ABC):
         raise NotImplementedError
 
 
+class AbstractUpdateService(ABC):
+    @abstractmethod
+    def update(self, record, **kwargs) -> SQLModel | None:
+        raise NotImplementedError
+
+
+class AbstractDeleteService(ABC):
+    @abstractmethod
+    def delete(self, record, **kwargs) -> SQLModel | None:
+        raise NotImplementedError
+
+
 class AbstractFindByIdService(ABC):
     @abstractmethod
     def find_by_id(self, record_id: Any) -> SQLModel:
@@ -30,7 +43,7 @@ class AbstractGetService(ABC):
 
 
 class FindByIdMixin(AbstractBaseService, AbstractFindByIdService):
-    def find_by_id(self, record_id: Any) -> SQLModel | None:
+    def find_by_id(self, record_id: int | uuid.UUID) -> SQLModel | None:
         return self.repository.find_by_id(record_id)
 
 
