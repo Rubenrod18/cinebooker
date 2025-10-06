@@ -1,11 +1,11 @@
 from sqlmodel import Session, SQLModel
 
-from app.models import Screen
-from app.repositories.screen_repository import ScreenRepository
+from app.models import Movie
+from app.repositories.movie_repository import MovieRepository
 from app.services import core
 
 
-class ScreenService(
+class MovieService(
     core.AbstractCreateService,
     core.FindByIdMixin,
     core.GetMixin,
@@ -15,14 +15,14 @@ class ScreenService(
     def __init__(
         self,
         session: type[Session] = None,
-        screen_repository: ScreenRepository | None = None,
+        movie_repository: MovieRepository | None = None,
     ):
-        super().__init__(repository=screen_repository or ScreenRepository(session))
+        super().__init__(repository=movie_repository or MovieRepository(session))
 
-    def create(self, **kwargs) -> Screen:
+    def create(self, **kwargs) -> Movie:
         return self.repository.create(**kwargs)
 
-    def update(self, record, **kwargs) -> Screen:
+    def update(self, record, **kwargs) -> Movie:
         return self.repository.update(record, **kwargs)
 
     def delete(self, record, **kwargs) -> SQLModel | None:

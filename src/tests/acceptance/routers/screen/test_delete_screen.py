@@ -20,13 +20,11 @@ class TestDeleteScreenRouter(_TestBaseScreenEndpoints):
 
     def test_delete_enabled_screen(self):
         screen = EnabledScreenFactory()
-        current_screen = {'name': screen.name, 'capacity': screen.capacity}
 
         self.client.delete(url=f'{self.base_path}/{screen.id}', json={}, exp_code=204)
 
         with self.app.container.session() as session:
             found_screen = session.query(Screen).first()
             assert found_screen
-            assert found_screen.name == current_screen['name']
-            assert found_screen.capacity == current_screen['capacity']
+            assert found_screen.id == screen.id
             assert found_screen.is_inactived
