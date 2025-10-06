@@ -1,6 +1,7 @@
 from enum import Enum
 
 DEFAULT_DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+DEFAULT_DATE_FORMAT = '%Y-%m-%d'
 
 
 class BaseEnum(str, Enum):

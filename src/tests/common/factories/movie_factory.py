@@ -1,3 +1,6 @@
+import random
+from datetime import timedelta
+
 import factory
 
 from app.models import Movie
@@ -17,43 +20,59 @@ class MovieFactory(BaseFactory):
     genre = factory.Iterator(MovieGenre.to_list())
     director = factory.Faker('name')
     language = factory.Faker('language_name')
+    created_at = factory.Faker('date_time_between', start_date='-3y', end_date='now')
+    updated_at = factory.Faker('date_time_between', start_date='-1y', end_date='now')
+
+    @factory.lazy_attribute
+    def inactive_at(self):
+        return random.choice([self.created_at + timedelta(days=2), None])
 
 
-class ActionMovieFactory(MovieFactory):
+class EnabledMovieFactory(MovieFactory):
+    inactive_at = None
+
+
+class DisabledMovieFactory(MovieFactory):
+    @factory.lazy_attribute
+    def inactive_at(self):
+        return self.created_at + timedelta(days=2)
+
+
+class ActionMovieFactory(EnabledMovieFactory):
     genre = MovieGenre.ACTION.value
 
 
-class ComedyMovieFactory(MovieFactory):
+class ComedyMovieFactory(EnabledMovieFactory):
     genre = MovieGenre.COMEDY.value
 
 
-class DramaMovieFactory(MovieFactory):
+class DramaMovieFactory(EnabledMovieFactory):
     genre = MovieGenre.DRAMA.value
 
 
-class HorrorMovieFactory(MovieFactory):
+class HorrorMovieFactory(EnabledMovieFactory):
     genre = MovieGenre.HORROR.value
 
 
-class RomanceMovieFactory(MovieFactory):
+class RomanceMovieFactory(EnabledMovieFactory):
     genre = MovieGenre.ROMANCE.value
 
 
-class ScienceFictionMovieFactory(MovieFactory):
+class ScienceFictionMovieFactory(EnabledMovieFactory):
     genre = MovieGenre.SCIENCE_FICTION.value
 
 
-class ThrillerMovieFactory(MovieFactory):
+class ThrillerMovieFactory(EnabledMovieFactory):
     genre = MovieGenre.THRILLER.value
 
 
-class AnimationMovieFactory(MovieFactory):
+class AnimationMovieFactory(EnabledMovieFactory):
     genre = MovieGenre.ANIMATION.value
 
 
-class DocumentaryMovieFactory(MovieFactory):
+class DocumentaryMovieFactory(EnabledMovieFactory):
     genre = MovieGenre.DOCUMENTARY.value
 
 
-class FantasyMovieFactory(MovieFactory):
+class FantasyMovieFactory(EnabledMovieFactory):
     genre = MovieGenre.FANTASY.value

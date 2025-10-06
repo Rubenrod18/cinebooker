@@ -4,7 +4,7 @@ import sqlalchemy as sa
 from sqlmodel import Field, Relationship, SQLModel
 
 from ..utils.constants import BaseEnum
-from .core import IntegerPKMixin
+from .core import CreatedUpdatedMixin, InactiveMixin, IntegerPKMixin
 
 
 class MovieGenre(BaseEnum):
@@ -20,7 +20,7 @@ class MovieGenre(BaseEnum):
     FANTASY = 'fantasy'
 
 
-class Movie(IntegerPKMixin, SQLModel, table=True):
+class Movie(IntegerPKMixin, CreatedUpdatedMixin, InactiveMixin, SQLModel, table=True):
     _tablename__ = 'movie'
 
     title: str
