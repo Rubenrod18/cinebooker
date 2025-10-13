@@ -7,10 +7,12 @@ from dotenv import load_dotenv
 
 from app.repositories.auth_user_repository import AuthUserRepository
 from app.repositories.customer_repository import CustomerRepository
+from app.repositories.discount_repository import DiscountRepository
 from app.repositories.movie_repository import MovieRepository
 from app.repositories.screen_repository import ScreenRepository
 from app.services.auth_user_service import AuthUserService
 from app.services.customer_service import CustomerService
+from app.services.discount_service import DiscountService
 from app.services.movie_service import MovieService
 from app.services.screen_service import ScreenService
 from config import get_settings
@@ -32,6 +34,8 @@ class ServiceDIContainer(containers.DeclarativeContainer):
             '.schemas.screen_schemas',
             '.routers.movie_router',
             '.schemas.movie_schemas',
+            '.routers.discount_router',
+            '.schemas.discount_schemas',
         ]
     )
     # OPTIMIZE: Load all env vars on this config
@@ -47,11 +51,13 @@ class ServiceDIContainer(containers.DeclarativeContainer):
     # Repositories
     auth_user_repository = providers.Factory(AuthUserRepository, session=session)
     customer_repository = providers.Factory(CustomerRepository, session=session)
+    discount_repository = providers.Factory(DiscountRepository, session=session)
     movie_repository = providers.Factory(MovieRepository, session=session)
     screen_repository = providers.Factory(ScreenRepository, session=session)
 
     # Services
     auth_user_service = providers.Factory(AuthUserService, session=session, auth_user_repository=auth_user_repository)
     customer_service = providers.Factory(CustomerService, session=session, customer_repository=customer_repository)
+    discount_service = providers.Factory(DiscountService, session=session, discount_repository=discount_repository)
     movie_service = providers.Factory(MovieService, session=session, movie_repository=movie_repository)
     screen_service = providers.Factory(ScreenService, session=session, screen_repository=screen_repository)
