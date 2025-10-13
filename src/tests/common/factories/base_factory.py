@@ -10,13 +10,15 @@ class BaseFactory(factory.alchemy.SQLAlchemyModelFactory):
         sqlalchemy_session_persistence = 'commit'
 
     @classmethod
-    def build_dict(cls, exclude: set | None = None, **kwargs):
+    def build_dict(cls, exclude: set | None = None, only: set | None = None, **kwargs):
         """Builds a dictionary representation of the factory instance.
 
         Args
         ----
-            exclude: set
+            exclude: set, optional
                 List of field names to exclude.
+            only: set, optional
+                List of field names to include (whitelist). Overrides `exclude` if provided.
             kwargs:
                 Additional fields to override.
 
@@ -25,11 +27,15 @@ class BaseFactory(factory.alchemy.SQLAlchemyModelFactory):
             dict:
                 The dictionary representation of the factory instance.
         """
-        exclude_fields = set(exclude or [])
         instance = cls.build(**kwargs)
-        return {
-            field: getattr(instance, field) for field in cls._meta.declarations.keys() if field not in exclude_fields
-        }
+        fields = cls._meta.declarations.keys()
+
+        if only:
+            fields = [f for f in fields if f in only]
+        elif exclude:
+            fields = [f for f in fields if f not in exclude]
+
+        return {field: getattr(instance, field) for field in fields}
 
     @classmethod
     def get_db_session(cls):
