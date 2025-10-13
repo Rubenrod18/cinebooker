@@ -39,3 +39,20 @@ class DiscountFactory(BaseFactory):
     @factory.lazy_attribute
     def inactive_at(self):
         return random.choice([self.created_at + timedelta(days=7), None])
+
+
+class EnabledDiscountFactory(DiscountFactory):
+    inactive_at = None
+
+
+class DisabledDiscountFactory(DiscountFactory):
+    @factory.lazy_attribute
+    def inactive_at(self):
+        return self.created_at + timedelta(days=2)
+
+
+class ExpiredDiscountFactory(DiscountFactory):
+    @factory.lazy_attribute
+    def expired_at(self):
+        expiration_time = timedelta(days=30)
+        return self.created_at + expiration_time

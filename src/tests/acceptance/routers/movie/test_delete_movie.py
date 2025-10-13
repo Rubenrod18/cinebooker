@@ -6,10 +6,8 @@ from tests.common.factories.movie_factory import DisabledMovieFactory, EnabledMo
 class TestDeleteMovieRouter(_TestBaseMovieEndpoints):
     def test_not_found(self):
         response = self.client.delete(url=f'{self.base_path}/99', json={}, exp_code=404)
-        json_response = response.json()
 
-        assert json_response
-        assert json_response == {'detail': 'Movie not found'}
+        assert response.json() == {'detail': 'Movie not found'}
 
     def test_delete_disabled_movie(self):
         movie = DisabledMovieFactory()

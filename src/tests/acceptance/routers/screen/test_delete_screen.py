@@ -6,10 +6,8 @@ from tests.common.factories.screen_factory import DisabledScreenFactory, Enabled
 class TestDeleteScreenRouter(_TestBaseScreenEndpoints):
     def test_not_found(self):
         response = self.client.delete(url=f'{self.base_path}/99', json={}, exp_code=404)
-        json_response = response.json()
 
-        assert json_response
-        assert json_response == {'detail': 'Screen not found'}
+        assert response.json() == {'detail': 'Screen not found'}
 
     def test_delete_disabled_screen(self):
         screen = DisabledScreenFactory()
