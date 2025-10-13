@@ -10,11 +10,13 @@ from app.repositories.customer_repository import CustomerRepository
 from app.repositories.discount_repository import DiscountRepository
 from app.repositories.movie_repository import MovieRepository
 from app.repositories.screen_repository import ScreenRepository
+from app.repositories.showtime_repository import ShowtimeRepository
 from app.services.auth_user_service import AuthUserService
 from app.services.customer_service import CustomerService
 from app.services.discount_service import DiscountService
 from app.services.movie_service import MovieService
 from app.services.screen_service import ScreenService
+from app.services.showtime_service import ShowtimeService
 from config import get_settings
 from database import SQLDatabase
 
@@ -36,6 +38,8 @@ class ServiceDIContainer(containers.DeclarativeContainer):
             '.schemas.movie_schemas',
             '.routers.discount_router',
             '.schemas.discount_schemas',
+            '.routers.showtime_router',
+            '.schemas.showtime_schemas',
         ]
     )
     # OPTIMIZE: Load all env vars on this config
@@ -54,6 +58,7 @@ class ServiceDIContainer(containers.DeclarativeContainer):
     discount_repository = providers.Factory(DiscountRepository, session=session)
     movie_repository = providers.Factory(MovieRepository, session=session)
     screen_repository = providers.Factory(ScreenRepository, session=session)
+    showtime_repository = providers.Factory(ShowtimeRepository, session=session)
 
     # Services
     auth_user_service = providers.Factory(AuthUserService, session=session, auth_user_repository=auth_user_repository)
@@ -61,3 +66,4 @@ class ServiceDIContainer(containers.DeclarativeContainer):
     discount_service = providers.Factory(DiscountService, session=session, discount_repository=discount_repository)
     movie_service = providers.Factory(MovieService, session=session, movie_repository=movie_repository)
     screen_service = providers.Factory(ScreenService, session=session, screen_repository=screen_repository)
+    showtime_service = providers.Factory(ShowtimeService, session=session, showtime_repository=showtime_repository)

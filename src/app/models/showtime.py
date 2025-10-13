@@ -6,10 +6,10 @@ from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.movie import Movie
 
-from .core import UUIDPKMixin
+from .core import CreatedUpdatedMixin, UUIDPKMixin
 
 
-class Showtime(UUIDPKMixin, SQLModel, table=True):
+class Showtime(UUIDPKMixin, CreatedUpdatedMixin, SQLModel, table=True):
     __tablename__ = 'showtime'
 
     movie_id: int = Field(foreign_key='movie.id')
@@ -27,5 +27,4 @@ class Showtime(UUIDPKMixin, SQLModel, table=True):
 
     @property
     def end_time(self):
-        buffer_minutes = 30  # NOTE: Optional cleanup timme between shows
-        return self.start_time + timedelta(minutes=self.movie.duration + buffer_minutes)
+        return self.start_time + timedelta(minutes=self.movie.duration)
