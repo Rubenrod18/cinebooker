@@ -1,5 +1,9 @@
+import random
+
+import pytest
+
 from app.models import Discount
-from app.utils.constants import DEFAULT_DATETIME_FORMAT
+from app.utils.constants import DEFAULT_DATE_FORMAT
 from tests.acceptance.routers.discount._base_discounts_test import _TestBaseDiscountEndpoints
 from tests.common.factories.discount_factory import DisabledDiscountFactory, EnabledDiscountFactory
 
@@ -88,9 +92,7 @@ class TestUpdateDiscountRouter(_TestBaseDiscountEndpoints):
     def test_expires_at_less_than_current_datetime(self):
         discount = EnabledDiscountFactory()
         payload = {
-            'expires_at': (
-                self.faker.date_time_between(start_date='-7d', end_date='-1d').strftime(DEFAULT_DATETIME_FORMAT)
-            )
+            'expires_at': (self.faker.date_time_between(start_date='-7d', end_date='-1d').strftime(DEFAULT_DATE_FORMAT))
         }
 
         response = self.client.patch(url=f'{self.base_path}/{discount.code}', json=payload, exp_code=422)
@@ -103,3 +105,44 @@ class TestUpdateDiscountRouter(_TestBaseDiscountEndpoints):
         response = self.client.patch(url=f'{self.base_path}/{Discount.id}', json={}, exp_code=404)
 
         assert response.json() == {'detail': 'Discount not found'}
+
+    @pytest.mark.parametrize(
+        'pre_payload, field',
+        (
+            (lambda x: {'description': x.paragraph(nb_sentences=3)}, 'description'),
+            (lambda x: {'is_percentage': random.choice([True, False])}, 'is_percentage'),
+            (lambda x: {'amount': str(round(random.uniform(5, 50), 2))}, 'amount'),
+            (
+                lambda x: {
+                    'expires_at': x.date_between(start_date='now', end_date='+10d').strftime(DEFAULT_DATE_FORMAT)
+                },
+                'expires_at',
+            ),
+            (lambda x: {'usage_limit': random.randint(1, 10)}, 'usage_limit'),
+        ),
+        ids=['description', 'is_percentage', 'amount', 'expires_at', 'usage_limit'],
+    )
+    def test_update_field(self, pre_payload, field):
+        discount = EnabledDiscountFactory()
+        payload = pre_payload(self.faker)
+
+        response = self.client.patch(
+            url=f'{self.base_path}/{discount.code}',
+            json=payload,
+        )
+        json_response = response.json()
+
+        assert json_response
+        assert json_response[field] == payload[field]
+
+        with self.app.container.session() as session:
+            found_discount = session.query(Discount).first()
+            assert found_discount
+            if field == 'expires_at':
+                assert getattr(found_discount, field).strftime(DEFAULT_DATE_FORMAT) == payload[field]
+            elif field == 'is_percentage':
+                assert getattr(found_discount, field) is payload[field]
+            elif field == 'amount':
+                assert str(getattr(found_discount, field)) == payload[field]
+            else:
+                assert getattr(found_discount, field) == payload[field]

@@ -3,8 +3,8 @@ import factory
 from app.models import Showtime
 from app.utils import financials
 from tests.common.factories.base_factory import BaseFactory
-from tests.common.factories.movie_factory import MovieFactory
-from tests.common.factories.screen_factory import ScreenFactory
+from tests.common.factories.movie_factory import EnabledMovieFactory, MovieFactory
+from tests.common.factories.screen_factory import EnabledScreenFactory, ScreenFactory
 
 
 class ShowtimeFactory(BaseFactory):
@@ -21,3 +21,8 @@ class ShowtimeFactory(BaseFactory):
     @factory.lazy_attribute
     def price_with_vat(self):
         return financials.apply_vat_rate(self.base_price, self.vat_rate)
+
+
+class EnabledShowtimeFactory(ShowtimeFactory):
+    movie = factory.SubFactory(EnabledMovieFactory)
+    screen = factory.SubFactory(EnabledScreenFactory)

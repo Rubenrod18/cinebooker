@@ -1,7 +1,7 @@
 import random
 
 from app.models import Discount
-from app.utils.constants import DEFAULT_DATETIME_FORMAT
+from app.utils.constants import DEFAULT_DATE_FORMAT
 from tests.acceptance.routers.discount._base_discounts_test import _TestBaseDiscountEndpoints
 from tests.common.factories.discount_factory import EnabledDiscountFactory
 
@@ -14,7 +14,7 @@ class TestCreateDiscountEndpoint(_TestBaseDiscountEndpoints):
             'is_percentage': self.faker.boolean(),
             'amount': str(round(random.uniform(5, 50), 2)),
             'expires_at': (
-                self.faker.date_time_between(start_date='now', end_date='+90d').strftime(DEFAULT_DATETIME_FORMAT)
+                self.faker.date_time_between(start_date='now', end_date='+90d').strftime(DEFAULT_DATE_FORMAT)
                 if self.faker.boolean()
                 else None
             ),
@@ -44,7 +44,7 @@ class TestCreateDiscountEndpoint(_TestBaseDiscountEndpoints):
             assert discount.is_percentage is payload['is_percentage']
             assert str(discount.amount) == payload['amount']
             assert (
-                discount.expires_at.strftime(DEFAULT_DATETIME_FORMAT)
+                discount.expires_at.strftime(DEFAULT_DATE_FORMAT)
                 if discount.expires_at
                 else discount.expires_at == payload['expires_at']
             )
@@ -61,7 +61,7 @@ class TestCreateDiscountEndpoint(_TestBaseDiscountEndpoints):
             'is_percentage': self.faker.boolean(),
             'amount': str(-1),
             'expires_at': (
-                self.faker.date_time_between(start_date='now', end_date='+90d').strftime(DEFAULT_DATETIME_FORMAT)
+                self.faker.date_time_between(start_date='now', end_date='+90d').strftime(DEFAULT_DATE_FORMAT)
                 if self.faker.boolean()
                 else None
             ),
@@ -89,7 +89,7 @@ class TestCreateDiscountEndpoint(_TestBaseDiscountEndpoints):
             'is_percentage': self.faker.boolean(),
             'amount': str(round(random.uniform(5, 50), 2)),
             'expires_at': (
-                self.faker.date_time_between(start_date='now', end_date='+90d').strftime(DEFAULT_DATETIME_FORMAT)
+                self.faker.date_time_between(start_date='now', end_date='+90d').strftime(DEFAULT_DATE_FORMAT)
                 if self.faker.boolean()
                 else None
             ),
@@ -117,7 +117,7 @@ class TestCreateDiscountEndpoint(_TestBaseDiscountEndpoints):
             'is_percentage': self.faker.boolean(),
             'amount': str(round(random.uniform(5, 50), 2)),
             'expires_at': (
-                self.faker.date_time_between(start_date='-7d', end_date='-1d').strftime(DEFAULT_DATETIME_FORMAT)
+                self.faker.date_time_between(start_date='-7d', end_date='-1d').strftime(DEFAULT_DATE_FORMAT)
             ),
             'usage_limit': random.randint(10, 100),
         }
@@ -134,7 +134,7 @@ class TestCreateDiscountEndpoint(_TestBaseDiscountEndpoints):
             'is_percentage': self.faker.boolean(),
             'amount': str(round(random.uniform(5, 50), 2)),
             'expires_at': (
-                self.faker.date_time_between(start_date='now', end_date='+90d').strftime(DEFAULT_DATETIME_FORMAT)
+                self.faker.date_time_between(start_date='now', end_date='+90d').strftime(DEFAULT_DATE_FORMAT)
                 if self.faker.boolean()
                 else None
             ),

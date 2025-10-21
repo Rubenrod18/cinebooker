@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 
 from dependency_injector.wiring import inject, Provide
@@ -16,7 +16,7 @@ class DiscountCreateSchema(BaseModel):
     description: str
     is_percentage: bool
     amount: Decimal = Field(None, ge=1)
-    expires_at: datetime | None = None
+    expires_at: date | None = None
     usage_limit: int | None = Field(None, ge=1)
     times_used: int | None = None
 
@@ -33,9 +33,9 @@ class DiscountCreateSchema(BaseModel):
 
     @field_validator('expires_at')
     @classmethod
-    def validate_expires_at(cls, value: datetime) -> datetime | None:
-        if isinstance(value, datetime):
-            now = datetime.now()
+    def validate_expires_at(cls, value: date) -> date | None:
+        if isinstance(value, date):
+            now = datetime.now().date()
             if value < now:
                 raise UnprocessableEntityException(description='Must be greater than or equal to the current datetime')
         return value
@@ -52,15 +52,15 @@ class DiscountUpdateSchema(BaseModel):
     description: str | None = None
     is_percentage: bool | None = None
     amount: Decimal = Field(None, ge=1)
-    expires_at: datetime | None = None
+    expires_at: date | None = None
     usage_limit: int | None = Field(None, ge=1)
     times_used: int | None = None
 
     @field_validator('expires_at')
     @classmethod
-    def validate_expires_at(cls, value: datetime) -> datetime | None:
-        if isinstance(value, datetime):
-            now = datetime.now()
+    def validate_expires_at(cls, value: date) -> date | None:
+        if isinstance(value, date):
+            now = datetime.now().date()
             if value < now:
                 raise UnprocessableEntityException(description='Must be greater than or equal to the current datetime')
         return value
@@ -80,7 +80,7 @@ class DiscountResponseSchema(core.IntegerPKMixin, core.CreatedUpdatedMixin, core
     description: str
     is_percentage: bool
     amount: Decimal
-    expires_at: datetime | None = None
+    expires_at: date | None = None
     usage_limit: int | None = None
     times_used: int | None = None
 
