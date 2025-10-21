@@ -22,3 +22,13 @@ class SeatFactory(BaseFactory):
     @factory.lazy_attribute
     def inactive_at(self):
         return random.choice([self.created_at + timedelta(days=2), None])
+
+
+class EnabledSeatFactory(SeatFactory):
+    inactive_at = None
+
+
+class DisabledSeatFactory(SeatFactory):
+    @factory.lazy_attribute
+    def inactive_at(self):
+        return self.created_at + timedelta(days=2)

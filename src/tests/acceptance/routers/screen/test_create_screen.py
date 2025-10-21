@@ -15,12 +15,14 @@ class TestCreateScreenEndpoint(_TestBaseScreenEndpoints):
         assert json_response
         assert json_response['name'] == payload['name']
         assert json_response['capacity'] == payload['capacity']
+        assert json_response['inactive_at'] is None
 
         with self.app.container.session() as session:
             screen = session.query(Screen).first()
             assert screen
             assert screen.name == payload['name']
             assert screen.capacity == payload['capacity']
+            assert screen.is_actived
 
     def test_invalid_capacity(self):
         payload = {
