@@ -101,5 +101,6 @@ def update_showtime_route(
     params: showtime_schemas.ShowtimeIdRequestSchema = Depends(),
 ) -> Showtime:
     showtime = showtime_service.update(params.showtime, **payload.model_dump(exclude_unset=True))
+    session.add(showtime)
     session.commit()
     return showtime

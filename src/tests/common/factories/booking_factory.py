@@ -6,10 +6,10 @@ import factory
 from app.models import Booking
 from app.models.booking import BookingSeat, BookingStatus
 from tests.common.factories.base_factory import BaseFactory
-from tests.common.factories.customer_factory import CustomerFactory
-from tests.common.factories.discount_factory import DiscountFactory
+from tests.common.factories.customer_factory import CustomerFactory, EnabledCustomerFactory
+from tests.common.factories.discount_factory import DiscountFactory, EnabledDiscountFactory
 from tests.common.factories.seat_factory import SeatFactory
-from tests.common.factories.showtime_factory import ShowtimeFactory
+from tests.common.factories.showtime_factory import EnabledShowtimeFactory, ShowtimeFactory
 
 
 class BookingFactory(BaseFactory):
@@ -18,7 +18,11 @@ class BookingFactory(BaseFactory):
 
     customer = factory.SubFactory(CustomerFactory)
     showtime = factory.SubFactory(ShowtimeFactory)
-    discount = factory.Iterator([factory.SubFactory(DiscountFactory), None])
+    discount = factory.Maybe(
+        'has_discount',
+        yes_declaration=factory.SubFactory(DiscountFactory),
+        no_declaration=None,
+    )
 
     status = factory.Iterator(BookingStatus.to_list())
     created_at = factory.Faker('date_time_between', start_date='-3y', end_date='now')
@@ -32,6 +36,21 @@ class BookingFactory(BaseFactory):
             expired_at = self.created_at + timedelta(minutes=5)
 
         return expired_at
+
+
+class EnabledBookingFactory(BookingFactory):
+    customer = factory.SubFactory(EnabledCustomerFactory)
+    showtime = factory.SubFactory(EnabledShowtimeFactory)
+    discount = factory.Maybe(
+        'has_discount',
+        yes_declaration=factory.SubFactory(EnabledDiscountFactory),
+        no_declaration=None,
+    )
+    status = factory.Iterator([BookingStatus.PENDING_PAYMENT.value, BookingStatus.CONFIRMED.value])
+
+
+class ExpiredBookingFactory(EnabledBookingFactory):
+    status = BookingStatus.EXPIRED.value
 
 
 class BookingSeatFactory(BaseFactory):

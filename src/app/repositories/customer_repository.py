@@ -5,8 +5,8 @@ from app.repositories import core
 
 
 class CustomerRepository(
-    core.AbstractBaseRepository,
     core.AbstractCreateRepository,
+    core.FindByIdMixin,
 ):
     def __init__(self, session: Session):
         super().__init__(model=Customer, session=session)
