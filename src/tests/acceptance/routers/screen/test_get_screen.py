@@ -1,3 +1,4 @@
+from app.utils.constants import DEFAULT_DATETIME_FORMAT
 from tests.acceptance.routers.screen._base_screens_test import _TestBaseScreenEndpoints
 from tests.common.factories.screen_factory import DisabledScreenFactory, EnabledScreenFactory
 
@@ -19,8 +20,12 @@ class TestGetScreenRouter(_TestBaseScreenEndpoints):
         screen = EnabledScreenFactory()
 
         response = self.client.get(url=f'{self.base_path}/{screen.id}', json={})
-        json_response = response.json()
 
-        assert json_response
-        assert json_response['name'] == screen.name
-        assert json_response['capacity'] == screen.capacity
+        assert response.json() == {
+            'capacity': screen.capacity,
+            'created_at': screen.created_at.strftime(DEFAULT_DATETIME_FORMAT),
+            'id': screen.id,
+            'inactive_at': None,
+            'name': screen.name,
+            'updated_at': screen.updated_at.strftime(DEFAULT_DATETIME_FORMAT),
+        }

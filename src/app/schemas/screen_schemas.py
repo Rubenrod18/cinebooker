@@ -18,7 +18,7 @@ class ScreenUpdateSchema(BaseModel):
     capacity: int | None = Field(None, ge=1)
 
 
-class ScreenResponseSchema(core.IntegerPKMixin, core.CreatedUpdatedMixin, BaseModel):
+class ScreenResponseSchema(core.IntegerPKMixin, core.CreatedUpdatedMixin, core.InactiveMixin, BaseModel):
     name: str
     capacity: int
 
