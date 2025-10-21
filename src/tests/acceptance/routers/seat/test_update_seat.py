@@ -2,6 +2,7 @@ from unittest.mock import ANY
 
 from app.models import Seat
 from tests.acceptance.routers.seat._base_seats_test import _TestBaseSeatEndpoints
+from tests.common.factories.screen_factory import DisabledScreenFactory
 from tests.common.factories.seat_factory import DisabledSeatFactory, EnabledSeatFactory
 
 
@@ -88,6 +89,14 @@ class TestUpdateSeatRouter(_TestBaseSeatEndpoints):
         seat = EnabledSeatFactory()
 
         response = self.client.patch(url=f'{self.base_path}/{seat.id}', json={'screen_id': 99}, exp_code=404)
+
+        assert response.json() == {'detail': 'Screen not found'}
+
+    def test_disabled_screen_not_found(self):
+        seat = EnabledSeatFactory()
+        screen = DisabledScreenFactory()
+
+        response = self.client.patch(url=f'{self.base_path}/{seat.id}', json={'screen_id': screen.id}, exp_code=404)
 
         assert response.json() == {'detail': 'Screen not found'}
 
