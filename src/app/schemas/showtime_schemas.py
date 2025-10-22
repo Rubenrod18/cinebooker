@@ -47,6 +47,7 @@ class ShowtimeCreateSchema(BaseModel):
 
     @model_validator(mode='after')
     def validate_price_with_vat(self):
+        # NOTE: This logic must be done by the backend
         if self.price_with_vat != financials.apply_vat_rate(self.base_price, self.vat_rate):
             raise UnprocessableEntityException(description='price_with_vat does not match base_price and vat_rate')
 

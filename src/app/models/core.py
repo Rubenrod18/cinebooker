@@ -1,11 +1,9 @@
 import uuid
 from datetime import datetime, UTC
-from typing import ClassVar, TypeVar
+from typing import ClassVar
 
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlmodel import Field, SQLModel
-
-InactiveMixinT = TypeVar('InactiveMixinT', bound='InactiveMixin')
 
 
 class IntegerPKMixin(SQLModel):
@@ -52,21 +50,19 @@ class InactiveMixin(SQLModel):
 
     inactive_at: datetime | None = Field(default=None)
 
-    def active(self: InactiveMixinT) -> InactiveMixinT:
+    def active(self) -> None:
         self.inactive_at = None
-        return self
 
-    def inactive(self: InactiveMixinT, when: datetime | None = None) -> InactiveMixinT:
+    def inactive(self, when: datetime | None = None) -> None:
         self.inactive_at = when or datetime.now(UTC)
-        return self
 
     is_actived: ClassVar[hybrid_property]
     is_inactived: ClassVar[hybrid_property]
 
     @hybrid_property
-    def is_actived(self: InactiveMixinT) -> bool:
+    def is_actived(self) -> bool:
         return self.inactive_at is None
 
     @hybrid_property
-    def is_inactived(self: InactiveMixinT) -> bool:
+    def is_inactived(self) -> bool:
         return self.inactive_at is not None
