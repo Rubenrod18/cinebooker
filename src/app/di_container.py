@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 from app.repositories.auth_user_repository import AuthUserRepository
 from app.repositories.booking_repository import BookingRepository
+from app.repositories.booking_seat_repository import BookingSeatRepository
 from app.repositories.customer_repository import CustomerRepository
 from app.repositories.discount_repository import DiscountRepository
 from app.repositories.movie_repository import MovieRepository
@@ -14,6 +15,7 @@ from app.repositories.screen_repository import ScreenRepository
 from app.repositories.seat_repository import SeatRepository
 from app.repositories.showtime_repository import ShowtimeRepository
 from app.services.auth_user_service import AuthUserService
+from app.services.booking_seat_service import BookingSeatService
 from app.services.booking_service import BookingService
 from app.services.customer_service import CustomerService
 from app.services.discount_service import DiscountService
@@ -37,6 +39,8 @@ class ServiceDIContainer(containers.DeclarativeContainer):
             '.routers.base',
             '.routers.booking_router',
             '.schemas.booking_schemas',
+            '.routers.booking_seat_router',
+            '.schemas.booking_seat_schemas',
             '.routers.customer_router',
             '.routers.screen_router',
             '.schemas.screen_schemas',
@@ -63,6 +67,7 @@ class ServiceDIContainer(containers.DeclarativeContainer):
     # Repositories
     auth_user_repository = providers.Factory(AuthUserRepository, session=session)
     booking_repository = providers.Factory(BookingRepository, session=session)
+    booking_seat_repository = providers.Factory(BookingSeatRepository, session=session)
     customer_repository = providers.Factory(CustomerRepository, session=session)
     discount_repository = providers.Factory(DiscountRepository, session=session)
     movie_repository = providers.Factory(MovieRepository, session=session)
@@ -73,6 +78,9 @@ class ServiceDIContainer(containers.DeclarativeContainer):
     # Services
     auth_user_service = providers.Factory(AuthUserService, session=session, auth_user_repository=auth_user_repository)
     booking_service = providers.Factory(BookingService, session=session, booking_repository=booking_repository)
+    booking_seat_service = providers.Factory(
+        BookingSeatService, session=session, booking_seat_repository=booking_seat_repository
+    )
     customer_service = providers.Factory(CustomerService, session=session, customer_repository=customer_repository)
     discount_service = providers.Factory(DiscountService, session=session, discount_repository=discount_repository)
     movie_service = providers.Factory(MovieService, session=session, movie_repository=movie_repository)

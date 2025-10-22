@@ -1,14 +1,14 @@
 from datetime import timedelta
-from decimal import Decimal
 
 import factory
 
 from app.models import Booking
 from app.models.booking import BookingSeat, BookingStatus
+from app.utils import financials
 from tests.common.factories.base_factory import BaseFactory
 from tests.common.factories.customer_factory import CustomerFactory, EnabledCustomerFactory
 from tests.common.factories.discount_factory import DiscountFactory, EnabledDiscountFactory
-from tests.common.factories.seat_factory import SeatFactory
+from tests.common.factories.seat_factory import EnabledSeatFactory, SeatFactory
 from tests.common.factories.showtime_factory import EnabledShowtimeFactory, ShowtimeFactory
 
 
@@ -49,6 +49,18 @@ class EnabledBookingFactory(BookingFactory):
     status = factory.Iterator([BookingStatus.PENDING_PAYMENT.value, BookingStatus.CONFIRMED.value])
 
 
+class PendingPaymentBookingFactory(EnabledBookingFactory):
+    status = BookingStatus.PENDING_PAYMENT.value
+
+
+class ConfirmedBookingFactory(EnabledBookingFactory):
+    status = BookingStatus.CONFIRMED.value
+
+
+class CancelledBookingFactory(EnabledBookingFactory):
+    status = BookingStatus.CANCELLED.value
+
+
 class ExpiredBookingFactory(EnabledBookingFactory):
     status = BookingStatus.EXPIRED.value
 
@@ -65,4 +77,24 @@ class BookingSeatFactory(BaseFactory):
 
     @factory.lazy_attribute
     def price_with_vat(self):
-        return (self.base_price * (1 + self.vat_rate)).quantize(Decimal('0.01'))
+        return financials.apply_vat_rate(self.base_price, self.vat_rate)
+
+
+class PendingPaymentBookingSeatFactory(BookingSeatFactory):
+    booking = factory.SubFactory(PendingPaymentBookingFactory)
+    seat = factory.SubFactory(EnabledSeatFactory)
+
+
+class ConfirmedBookingSeatFactory(BookingSeatFactory):
+    booking = factory.SubFactory(ConfirmedBookingFactory)
+    seat = factory.SubFactory(EnabledSeatFactory)
+
+
+class ExpiredBookingSeatFactory(BookingSeatFactory):
+    booking = factory.SubFactory(ExpiredBookingFactory)
+    seat = factory.SubFactory(EnabledSeatFactory)
+
+
+class CancelledBookingSeatFactory(BookingSeatFactory):
+    booking = factory.SubFactory(CancelledBookingFactory)
+    seat = factory.SubFactory(EnabledSeatFactory)

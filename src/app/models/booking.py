@@ -47,7 +47,7 @@ class Booking(core.UUIDPKMixin, core.CreatedUpdatedMixin, SQLModel, table=True):
     invoice: Optional['Invoice'] = Relationship(back_populates='booking')
 
 
-class BookingSeat(core.IntegerPKMixin, SQLModel, table=True):
+class BookingSeat(core.IntegerPKMixin, core.CreatedUpdatedMixin, SQLModel, table=True):
     __tablename__ = 'booking_seat'
 
     booking_id: UUID = Field(foreign_key='booking.id')

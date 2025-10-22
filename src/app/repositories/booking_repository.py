@@ -8,11 +8,11 @@ from app.repositories import core
 
 
 class BookingRepository(
-    core.AbstractBaseRepository,
     core.AbstractCreateRepository,
     core.AbstractFindByIdRepository,
     core.AbstractGetRepository,
     core.AbstractUpdateRepository,
+    core.FindOneMixin,
 ):
     def __init__(self, session: Session):
         super().__init__(model=Booking, session=session)

@@ -29,6 +29,12 @@ class AbstractDeleteRepository(ABC):
         raise NotImplementedError
 
 
+class AbstractFindOneRepository(ABC):
+    @abstractmethod
+    def find_one(self, **filters) -> SQLModel | None:
+        raise NotImplementedError
+
+
 class AbstractFindByIdRepository(ABC):
     @abstractmethod
     def find_by_id(self, record_id) -> SQLModel | None:
@@ -41,10 +47,21 @@ class AbstractGetRepository(ABC):
         raise NotImplementedError
 
 
-class FindByIdMixin(AbstractBaseRepository, AbstractFindByIdRepository):
-    def find_by_id(self, record_id: Any) -> SQLModel:
+class FindOneMixin(AbstractBaseRepository, AbstractFindOneRepository):
+    def find_one(self, **filters) -> SQLModel:
         with self.session as session:
-            return session.query(self.model).filter(self.model.id == record_id).first()
+            query = session.query(self.model)
+
+            for field, value in filters.items():
+                if hasattr(self.model, field):
+                    query = query.filter(getattr(self.model, field) == value)
+
+            return query.first()
+
+
+class FindByIdMixin(AbstractFindByIdRepository, FindOneMixin):
+    def find_by_id(self, record_id: Any) -> SQLModel:
+        return self.find_one(id=record_id)
 
 
 class GetMixin(AbstractBaseRepository, AbstractGetRepository):
