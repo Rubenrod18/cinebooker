@@ -2,7 +2,7 @@ from decimal import Decimal, InvalidOperation
 
 import pytest
 
-from app.utils.financials import apply_vat_rate
+from app.utils.financials import apply_vat_rate, decimal_to_int
 from tests.common.base_tests.test_base_unit import TestBaseUnit
 
 
@@ -43,3 +43,38 @@ class TestApplyVatRate(TestBaseUnit):
         """Non-numeric inputs should raise Decimal.InvalidOperation (propagated)."""
         with pytest.raises(InvalidOperation):
             apply_vat_rate('not-a-number', '0.23')
+
+
+class TestDecimalToInt(TestBaseUnit):
+    @pytest.mark.parametrize(
+        'amount, expected',
+        [
+            (Decimal('10.00'), 1_000),
+            (Decimal('19.99'), 1_999),
+            (Decimal('0.01'), 1),
+            (100, 10_000),
+            ('5.25', 525),
+            (19.999, 2_000),  # rounding test
+            (Decimal('19.994'), 1_999),  # rounding down
+        ],
+    )
+    def test_decimal_to_int_standard(self, amount, expected):
+        assert decimal_to_int(amount) == expected
+
+    def test_decimal_to_int_rounding_behavior(self):
+        """Ensure ROUND_HALF_UP behavior is respected."""
+        val = Decimal('1.234')
+        result = decimal_to_int(val)
+        # 1.234 * 100 = 123.4 -> rounds to 123
+        assert result == 123
+
+        val2 = Decimal('1.235')
+        result2 = decimal_to_int(val2)
+        # 1.235 * 100 = 123.5 -> rounds to 124 (half up)
+        assert result2 == 124
+
+    def test_decimal_to_int_with_quantization(self):
+        """Custom quantization should work correctly."""
+        result = decimal_to_int(Decimal('1.2399'), quantize_to=Decimal('0.001'))
+        # quantize to 0.001 -> 1.240 * 100 = 124
+        assert result == 124

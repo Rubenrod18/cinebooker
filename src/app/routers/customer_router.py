@@ -38,9 +38,7 @@ def create_customer_route(
     customer_service: Annotated[CustomerService, Depends(Provide[ServiceDIContainer.customer_service])],
 ) -> Customer:
     auth_user_fields, customer_fields = payload['auth_user'], payload['customer']
-
-    with session.begin():
-        auth_user = auth_user_service.create(**auth_user_fields)
-        customer = customer_service.create(auth_user_id=auth_user.id, **customer_fields)
-
+    auth_user = auth_user_service.create(**auth_user_fields)
+    customer = customer_service.create(auth_user_id=auth_user.id, **customer_fields)
+    session.commit()
     return customer
