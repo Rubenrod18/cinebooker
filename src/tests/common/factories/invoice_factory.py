@@ -6,6 +6,7 @@ from app.models import Invoice
 from app.models.invoice import InvoiceItem, InvoiceStatus
 from tests.common.factories.base_factory import BaseFactory
 from tests.common.factories.booking_factory import BookingFactory
+from tests.conftest import fake
 
 
 class InvoiceFactory(BaseFactory):
@@ -15,7 +16,7 @@ class InvoiceFactory(BaseFactory):
     booking = factory.SubFactory(BookingFactory)
 
     code = factory.Sequence(lambda n: f'Invoice_code_{n}')
-    currency = factory.Sequence(lambda n: f'Invoice_Currency_{n}')
+    currency = factory.LazyFunction(lambda: fake.currency_code().lower())
     total_base_price = factory.Faker(
         'pydecimal', left_digits=2, right_digits=2, positive=True, min_value=5, max_value=20
     )

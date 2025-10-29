@@ -14,6 +14,10 @@ class BaseConfig(BaseSettings):
     # SQLAlchemy
     DATABASE_URL: str = os.getenv('SQLALCHEMY_DATABASE_URI')
 
+    # Stripe
+    STRIPE_API_KEY: str = os.getenv('STRIPE_API_KEY')
+    STRIPE_WEBHOOK_SECRET: str = os.getenv('STRIPE_WEBHOOK_SECRET')
+
     class Config:
         env_file = '.env'
 

@@ -1,9 +1,9 @@
 from typing import Any
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import joinedload, Session
 from sqlmodel import SQLModel
 
-from app.models import Booking
+from app.models import Booking, Invoice
 from app.repositories import core
 
 
@@ -30,6 +30,25 @@ class BookingRepository(
                 self.model.id == record_id,
                 self.model.expired_at.is_(None),
             )
+            .first()
+        )
+
+    def find_one(self, **filters):
+        # HACK: Refactor this method
+        return (
+            self.session.query(Booking)
+            .options(joinedload(Booking.invoice).joinedload(Invoice.invoice_items))
+            .filter_by(**filters)
+            .first()
+        )
+
+    def find_one_with_invoices(self, *filters):
+        # HACK: Refactor this method
+        return (
+            self.session.query(Booking)
+            .options(joinedload(Booking.invoice).joinedload(Invoice.invoice_items))
+            .join(Invoice)
+            .filter(*filters)
             .first()
         )
 

@@ -2,10 +2,11 @@ from decimal import Decimal
 from uuid import UUID
 
 import sqlalchemy as sa
+from sqlalchemy.ext.mutable import MutableDict
 from sqlmodel import Field, Relationship, SQLModel
 
 from ..utils.constants import BaseEnum
-from .core import IntegerPKMixin
+from .core import CreatedUpdatedMixin, IntegerPKMixin
 
 
 class PaymentProvider(BaseEnum):
@@ -29,7 +30,7 @@ class PaymentStatus(BaseEnum):
     CANCELLED = 'cancelled'
 
 
-class Payment(IntegerPKMixin, SQLModel, table=True):
+class Payment(IntegerPKMixin, CreatedUpdatedMixin, SQLModel, table=True):
     __tablename__ = 'payment'
 
     booking_id: UUID = Field(foreign_key='booking.id')
@@ -46,8 +47,8 @@ class Payment(IntegerPKMixin, SQLModel, table=True):
             nullable=False,
         )
     )
-    provider_payment_id: str
-    provider_metadata: dict | None = Field(sa_column=sa.Column(sa.JSON))
+    provider_payment_id: str | None = Field(default=None)
+    provider_metadata: dict | None = Field(sa_column=sa.Column(MutableDict.as_mutable(sa.JSON), default=dict))
 
     amount: Decimal = Field(sa_column=sa.DECIMAL(12, 2))
     currency: str
