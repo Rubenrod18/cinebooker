@@ -5,6 +5,7 @@ import os
 from dependency_injector import containers, providers
 from dotenv import load_dotenv
 
+from app.providers.paypal_provider import PayPalProvider
 from app.providers.stripe_provider import StripeProvider
 from app.repositories.auth_user_repository import AuthUserRepository
 from app.repositories.booking_repository import BookingRepository
@@ -51,6 +52,9 @@ class ServiceDIContainer(containers.DeclarativeContainer):
             '.schemas.movie_schemas',
             '.routers.discount_router',
             '.schemas.discount_schemas',
+            '.schemas.payment_schemas',
+            '.routers.paypal_router',
+            '.schemas.paypal_schemas',
             '.routers.seat_router',
             '.schemas.seat_schemas',
             '.routers.showtime_router',
@@ -70,6 +74,13 @@ class ServiceDIContainer(containers.DeclarativeContainer):
     )
 
     # Providers
+    paypal_provider = providers.Singleton(
+        PayPalProvider,
+        client_id=settings.PAYPAL_CLIENT_ID,
+        client_secret=settings.PAYPAL_CLIENT_SECRET,
+        webhook_id=settings.PAYPAL_WEBHOOK_ID,
+        sandbox=settings.PAYPAL_SANDBOX,
+    )
     stripe_provider = providers.Singleton(StripeProvider, api_key=settings.STRIPE_API_KEY)
 
     # Repositories
@@ -86,7 +97,13 @@ class ServiceDIContainer(containers.DeclarativeContainer):
 
     # Services
     auth_user_service = providers.Factory(AuthUserService, session=session, auth_user_repository=auth_user_repository)
-    booking_service = providers.Factory(BookingService, session=session, booking_repository=booking_repository)
+    booking_service = providers.Factory(
+        BookingService,
+        session=session,
+        booking_repository=booking_repository,
+        paypal_provider=paypal_provider,
+        stripe_provider=stripe_provider,
+    )
     booking_seat_service = providers.Factory(
         BookingSeatService, session=session, booking_seat_repository=booking_seat_repository
     )

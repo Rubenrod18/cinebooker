@@ -18,6 +18,12 @@ class BaseConfig(BaseSettings):
     STRIPE_API_KEY: str = os.getenv('STRIPE_API_KEY')
     STRIPE_WEBHOOK_SECRET: str = os.getenv('STRIPE_WEBHOOK_SECRET')
 
+    # Paypal
+    PAYPAL_CLIENT_ID: str = os.getenv('PAYPAL_CLIENT_ID')
+    PAYPAL_CLIENT_SECRET: str = os.getenv('PAYPAL_CLIENT_SECRET')
+    PAYPAL_WEBHOOK_ID: str = os.getenv('PAYPAL_WEBHOOK_ID')
+    PAYPAL_SANDBOX: bool = os.getenv('PAYPAL_SANDBOX')
+
     class Config:
         env_file = '.env'
 

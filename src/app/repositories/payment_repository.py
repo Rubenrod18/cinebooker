@@ -27,3 +27,11 @@ class PaymentRepository(
             setattr(record, field, value)
 
         return record
+
+    def find_by_provider_payment_id(self, provider_payment_id: str) -> SQLModel | None:
+        return (
+            self.session.query(Payment)
+            .options(joinedload(Payment.booking))
+            .filter(Payment.provider_payment_id == provider_payment_id)
+            .first()
+        )

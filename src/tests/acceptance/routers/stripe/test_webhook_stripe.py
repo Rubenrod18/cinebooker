@@ -3,7 +3,7 @@ import os
 from dataclasses import asdict, dataclass
 from unittest.mock import MagicMock
 
-from app.providers.stripe_provider import EventType, StripeProvider
+from app.providers.stripe_provider import StripeEventType, StripeProvider
 from app.services.booking_service import BookingService
 from app.services.payment_service import PaymentService
 from tests.acceptance.routers.stripe._base_stripe_test import _TestBaseStripeEndpoints
@@ -32,7 +32,7 @@ class TestWebhookStripeEndpoint(_TestBaseStripeEndpoints):
         payment = PendingStripePaymentFactory(booking=booking)
         mock_stripe_provider = MagicMock(spec=StripeProvider)
         mock_stripe_provider.verify_webhook.return_value = WebhookEvent(
-            type=EventType.PAYMENT_INTENT_SUCCEEDED.value,
+            type=StripeEventType.PAYMENT_INTENT_SUCCEEDED.value,
             data={'object': {'id': payment_intent_id, 'metadata': {'payment_id': payment_id}}},
         )
         mock_booking_service = MagicMock(spec=BookingService)
@@ -58,7 +58,9 @@ class TestWebhookStripeEndpoint(_TestBaseStripeEndpoints):
             webhook_secret=os.getenv('STRIPE_WEBHOOK_SECRET'),
         )
         mock_payment_service.find_by_id.assert_called_once_with(payment_id)
-        mock_payment_service.completed.assert_called_once_with(payment, **{'provider_payment_id': payment_intent_id})
+        mock_payment_service.completed.assert_called_once_with(
+            payment, **{'provider_payment_id': payment_intent_id, 'provider_metadata': None}
+        )
         mock_booking_service.confirmed.assert_called_once_with(booking)
 
     def test_webhook_payment_failed(self, app):
@@ -72,7 +74,7 @@ class TestWebhookStripeEndpoint(_TestBaseStripeEndpoints):
         payment = PendingStripePaymentFactory(booking=booking)
         mock_stripe_provider = MagicMock(spec=StripeProvider)
         mock_stripe_provider.verify_webhook.return_value = WebhookEvent(
-            type=EventType.PAYMENT_INTENT_FAILED.value,
+            type=StripeEventType.PAYMENT_INTENT_FAILED.value,
             data={
                 'object': {
                     'id': payment_intent_id,

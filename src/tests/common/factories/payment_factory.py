@@ -43,7 +43,7 @@ class PaymentFactory(BaseFactory):
         no_declaration=None,
     )
     amount = factory.Faker('pydecimal', left_digits=2, right_digits=2, positive=True, min_value=5, max_value=20)
-    currency = factory.LazyFunction(lambda: fake.currency_code().lower())
+    currency = factory.Iterator(['eur', 'usd', 'gbp'])  # NOTE: PayPal supports fewer currencies than Stripe.
     status = factory.Iterator(PaymentStatus.to_list())
     created_at = factory.Faker('date_time_between', start_date='-3y', end_date='now')
     updated_at = factory.Faker('date_time_between', start_date='-1y', end_date='now')
@@ -63,3 +63,9 @@ class PendingStripePaymentFactory(PaymentFactory):
     booking = factory.SubFactory(PendingPaymentBookingFactory)
     status = PaymentStatus.PENDING.value
     provider = PaymentProvider.STRIPE.value
+
+
+class PendingPayPalPalPaymentFactory(PaymentFactory):
+    booking = factory.SubFactory(PendingPaymentBookingFactory)
+    status = PaymentStatus.PENDING.value
+    provider = PaymentProvider.PAYPAL.value

@@ -3,6 +3,7 @@ from sqlmodel import Session
 
 from app.models import Booking, Payment
 from app.models.booking import BookingStatus
+from app.providers.paypal_provider import PayPalIntent, PayPalProvider
 from app.providers.stripe_provider import StripeProvider
 from app.repositories.booking_repository import BookingRepository
 from app.services import core
@@ -20,8 +21,10 @@ class BookingService(
         session: type[Session] = None,
         booking_repository: BookingRepository | None = None,
         stripe_provider: StripeProvider | None = None,
+        paypal_provider: PayPalProvider | None = None,
     ):
         super().__init__(repository=booking_repository or BookingRepository(session))
+        self.paypal_provider = paypal_provider or PayPalProvider()
         self.stripe_provider = stripe_provider or StripeProvider()
 
     def create(self, **kwargs) -> Booking:
@@ -33,6 +36,10 @@ class BookingService(
 
     def confirmed(self, record, **kwargs) -> Booking:
         kwargs['status'] = BookingStatus.CONFIRMED
+        return self.update(record, **kwargs)
+
+    def cancelled(self, record, **kwargs) -> Booking:
+        kwargs['status'] = BookingStatus.CANCELLED
         return self.update(record, **kwargs)
 
     def create_stripe_checkout_session(self, booking: Booking, payment: Payment) -> stripe.checkout.Session:
@@ -59,3 +66,11 @@ class BookingService(
             metadata={'payment_id': payment.id},
             payment_intent_data={'metadata': {'payment_id': payment.id}},
         )
+
+    def create_paypal_order(self, booking: Booking) -> dict:
+        invoice = booking.invoice
+        payload = {
+            'intent': PayPalIntent.CAPTURE.value,
+            'purchase_units': [{'amount': {'currency_code': invoice.currency, 'value': str(invoice.total_price)}}],
+        }
+        return self.paypal_provider.create_order(payload=payload)

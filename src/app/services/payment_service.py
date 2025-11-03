@@ -29,6 +29,13 @@ class PaymentService(
         kwargs['status'] = PaymentStatus.COMPLETED
         return self.update(record, **kwargs)
 
+    def cancelled(self, record, **kwargs) -> Payment:
+        kwargs['status'] = PaymentStatus.CANCELLED
+        return self.update(record, **kwargs)
+
     def failed(self, record, **kwargs) -> Payment:
         kwargs['status'] = PaymentStatus.FAILED
         return self.update(record, **kwargs)
+
+    def find_by_provider_payment_id(self, provider_payment_id: str) -> Payment | None:
+        return self.repository.find_by_provider_payment_id(provider_payment_id)

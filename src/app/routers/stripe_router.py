@@ -9,8 +9,8 @@ from starlette import status
 
 from app.di_container import ServiceDIContainer
 from app.models.payment import PaymentProvider
-from app.providers.stripe_provider import EventType, StripeProvider
-from app.schemas import stripe_schemas
+from app.providers.stripe_provider import StripeEventType, StripeProvider
+from app.schemas import payment_schemas, stripe_schemas
 from app.services.booking_service import BookingService
 from app.services.payment_service import PaymentService
 
@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 )
 @inject
 def create_checkout_session_route(
-    payload: stripe_schemas.StripeBookingIdRequestSchema,
+    payload: payment_schemas.BookingIdRequestSchema,
     session: Annotated[Session, Depends(Provide[ServiceDIContainer.session])],
     booking_service: Annotated[BookingService, Depends(Provide[ServiceDIContainer.booking_service])],
     payment_service: Annotated[PaymentService, Depends(Provide[ServiceDIContainer.payment_service])],
@@ -66,14 +66,14 @@ async def create_showtime_route(
     booking_service: Annotated[BookingService, Depends(Provide[ServiceDIContainer.booking_service])],
     payment_service: Annotated[PaymentService, Depends(Provide[ServiceDIContainer.payment_service])],
 ) -> None:
-    payload = await request.body()  # NOTE: await is required because request.body()
-    #       is async and must be awaited to get the actual data.
+    # NOTE: await is required because request.body() is async and must be awaited to get the actual data
+    payload = await request.body()
 
     event = stripe_provider.verify_webhook(
         payload, sig_header=request.headers.get('Stripe-Signature'), webhook_secret=os.getenv('STRIPE_WEBHOOK_SECRET')
     ).to_dict()
 
-    if event['type'] == EventType.PAYMENT_INTENT_SUCCEEDED.value:
+    if event['type'] == StripeEventType.PAYMENT_INTENT_SUCCEEDED.value:
         intent = event['data']['object']
         payment_id = intent.get('metadata', {}).get('payment_id')
 
@@ -82,11 +82,12 @@ async def create_showtime_route(
         if not payment:
             raise HTTPException(status_code=404, detail='Payment not found')
 
-        payment_service.completed(payment, **{'provider_payment_id': intent.get('id')})
+        payment_service.completed(payment, **{'provider_payment_id': intent.get('id'), 'provider_metadata': None})
         booking_service.confirmed(payment.booking)
+        # TODO: Pending to mark the invoice as paid  # pylint: disable=fixme
         session.commit()
         logger.info('✅ Payment succeeded!')
-    elif event['type'] == EventType.PAYMENT_INTENT_FAILED.value:
+    elif event['type'] == StripeEventType.PAYMENT_INTENT_FAILED.value:
         intent = event['data']['object']
         payment_id = intent.get('metadata', {}).get('payment_id')
         error_message = intent['last_payment_error']['message'] if intent.get('last_payment_error') else None

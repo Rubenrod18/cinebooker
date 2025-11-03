@@ -12,7 +12,7 @@ if typing.TYPE_CHECKING:
     from stripe.params.billing_portal import SessionCreateParams
 
 
-class EventType(BaseEnum):
+class StripeEventType(BaseEnum):
     PAYMENT_INTENT_SUCCEEDED = 'payment_intent.succeeded'
     PAYMENT_INTENT_FAILED = 'payment_intent.payment_failed'
 
