@@ -2,6 +2,9 @@
 
 # Alembic
 ALEMBIC_CONFIG_FILE ?= app/migrations/alembic.ini
+# Pytest
+PARALLEL_TEST ?= auto
+MAX_FAIL_TEST ?= 5
 
 
 help:
@@ -39,3 +42,6 @@ linter: ## Run Pylint on the app directory, disabling refactor warnings
 
 test: ## Run tests
 	@uv run pytest
+
+test-parallel:  ## Run tests in parallel
+	@uv run pytest --numprocesses=$(PARALLEL_TEST) --maxfail=$(MAX_FAIL_TEST)
