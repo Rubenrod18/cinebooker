@@ -40,6 +40,11 @@ class Invoice(core.IntegerPKMixin, core.CreatedUpdatedMixin, table=True):
 
     invoice_items: list['InvoiceItem'] | None = Relationship(back_populates='invoice')
 
+    __table_args__ = (
+        sa.PrimaryKeyConstraint('id'),
+        sa.UniqueConstraint('code'),
+    )
+
 
 class InvoiceItem(core.IntegerPKMixin, core.CreatedUpdatedMixin, SQLModel, table=True):
     __tablename__ = 'invoice_item'

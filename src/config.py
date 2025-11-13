@@ -1,4 +1,5 @@
 import os
+from decimal import Decimal
 from functools import lru_cache
 
 from dotenv import load_dotenv
@@ -23,6 +24,9 @@ class BaseConfig(BaseSettings):
     PAYPAL_CLIENT_SECRET: str = os.getenv('PAYPAL_CLIENT_SECRET')
     PAYPAL_WEBHOOK_ID: str = os.getenv('PAYPAL_WEBHOOK_ID')
     PAYPAL_SANDBOX: bool = os.getenv('PAYPAL_SANDBOX')
+
+    # Mr Developer
+    DEFAULT_VAT_RATE: Decimal = Decimal(os.getenv('DEFAULT_VAT_RATE', Decimal('0.21')))
 
     class Config:
         env_file = '.env'

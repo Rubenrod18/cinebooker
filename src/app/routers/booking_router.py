@@ -5,10 +5,13 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from starlette import status
 
-from app.di_container import ServiceDIContainer
-from app.models import Booking
-from app.schemas import booking_schemas
+from app.di_container import ServiceDIContainer, settings
+from app.models import Booking, Invoice
+from app.schemas import booking_schemas, invoice_schemas
 from app.services.booking_service import BookingService
+from app.services.invoice_item_service import InvoiceItemService
+from app.services.invoice_service import InvoiceService
+from app.services.price_calculator_service import PriceCalculatorService
 
 router = APIRouter(prefix='/bookings', tags=['bookings'])
 
@@ -104,3 +107,56 @@ def update_booking_route(
     session.add(booking)
     session.commit()
     return booking
+
+
+@router.post(
+    '/{booking_id}/invoices',
+    summary='Create an Invoice',
+    status_code=status.HTTP_201_CREATED,
+    response_model=invoice_schemas.InvoiceResponseSchema,
+    responses={
+        200: {
+            'description': 'Returns an Invoice',
+        },
+        404: {
+            'description': 'Booking not found',
+        },
+    },
+)
+@inject
+def create_invoice_route(
+    session: Annotated[Session, Depends(Provide[ServiceDIContainer.session])],
+    invoice_service: Annotated[InvoiceService, Depends(Provide[ServiceDIContainer.invoice_service])],
+    invoice_item_service: Annotated[InvoiceItemService, Depends(Provide[ServiceDIContainer.invoice_item_service])],
+    price_calculator_service: Annotated[
+        PriceCalculatorService, Depends(Provide[ServiceDIContainer.price_calculator_service])
+    ],
+    params: invoice_schemas.BookingIdRequestSchema = Depends(),
+) -> Invoice:
+    booking = params.booking
+
+    seat_invoice_item_fields = price_calculator_service.calculate_seat_invoice_item(booking, settings.DEFAULT_VAT_RATE)
+    discount_invoice_item_fields = price_calculator_service.calculate_discount_invoice_item(
+        booking, settings.DEFAULT_VAT_RATE
+    )
+    invoice_fields = price_calculator_service.calculate_invoice_prices(
+        seat_invoice_item_fields, discount_invoice_item_fields, settings.DEFAULT_VAT_RATE
+    )
+
+    invoice_fields['booking_id'] = booking.id
+    invoice = invoice_service.create(**invoice_fields)
+    session.add(invoice)
+
+    seat_invoice_item_fields.update({'invoice_id': invoice.id, 'description': 'Seats'})
+    seat_invoice_item = invoice_item_service.create(**seat_invoice_item_fields)
+    session.add(seat_invoice_item)
+
+    if booking.discount:
+        discount_invoice_item_fields.update(
+            {'invoice_id': invoice.id, 'description': f'Discount {booking.discount.code}'}
+        )
+        discount_invoice_item = invoice_item_service.create(**discount_invoice_item_fields)
+        session.add(discount_invoice_item)
+
+    session.commit()
+    return invoice

@@ -7,6 +7,10 @@ from sqlmodel import SQLModel
 from app.repositories.core import AbstractBaseRepository
 
 
+class AbstractDomainService(ABC):
+    """Base class for services that encapsulate domain logic without persistence."""
+
+
 class AbstractBaseService(ABC):
     def __init__(self, repository: AbstractBaseRepository) -> None:
         self.repository = repository

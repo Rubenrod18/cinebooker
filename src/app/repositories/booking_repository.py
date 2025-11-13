@@ -52,6 +52,10 @@ class BookingRepository(
             .first()
         )
 
+    def find_one_with_seats(self, *filters):
+        # HACK: Refactor this method
+        return self.session.query(Booking).options(joinedload(Booking.booking_seats)).filter(*filters).first()
+
     def get(self, **kwargs) -> list[SQLModel]:
         page_number = int(kwargs.get('page_number', 1)) - 1
         items_per_page = int(kwargs.get('items_per_page', 10))
