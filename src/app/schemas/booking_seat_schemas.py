@@ -26,7 +26,9 @@ class BookingSeatCreateSchema(BookingIdRequestSchema, SeatIdRequestSchema):
     def validate_booking_id(
         cls, booking_id: UUID, booking_repository: BookingRepository = Provide[ServiceDIContainer.booking_repository]
     ) -> UUID:
-        booking = booking_repository.find_one(id=booking_id, status=BookingStatus.PENDING_PAYMENT.value)
+        booking = booking_repository.find_one(
+            filter_by={'id': booking_id, 'status': BookingStatus.PENDING_PAYMENT.value}
+        )
 
         if not booking:
             raise NotFoundException(description='Booking not found')
@@ -57,7 +59,9 @@ class BookingSeatUpdateSchema(BookingIdRequestSchema, SeatIdRequestSchema):
     def validate_booking_id(
         cls, booking_id: UUID, booking_repository: BookingRepository = Provide[ServiceDIContainer.booking_repository]
     ) -> UUID:
-        booking = booking_repository.find_one(id=booking_id, status=BookingStatus.PENDING_PAYMENT.value)
+        booking = booking_repository.find_one(
+            filter_by={'id': booking_id, 'status': BookingStatus.PENDING_PAYMENT.value}
+        )
 
         if not booking:
             raise NotFoundException(description='Booking not found')

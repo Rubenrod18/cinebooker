@@ -3,7 +3,7 @@ from typing import Any
 from sqlalchemy.orm import joinedload, Session
 from sqlmodel import SQLModel
 
-from app.models import Booking, Invoice
+from app.models import Booking, Discount, Invoice
 from app.repositories import core
 
 
@@ -24,32 +24,38 @@ class BookingRepository(
         return movie
 
     def find_by_id(self, record_id: Any) -> SQLModel:
-        return (
-            self.session.query(self.model)
-            .filter(
-                self.model.id == record_id,
-                self.model.expired_at.is_(None),
-            )
-            .first()
-        )
-
-    def find_one(self, **filters):
-        # HACK: Refactor this method
-        return (
-            self.session.query(Booking)
-            .options(joinedload(Booking.invoice).joinedload(Invoice.invoice_items))
-            .filter_by(**filters)
-            .first()
-        )
+        return self.find_one(filters=(self.model.id == record_id, self.model.expired_at.is_(None)))
 
     def find_one_with_invoices(self, *filters):
-        # HACK: Refactor this method
-        return (
-            self.session.query(Booking)
-            .options(joinedload(Booking.invoice).joinedload(Invoice.invoice_items))
-            .join(Invoice)
-            .filter(*filters)
-            .first()
+        return self.find_one(
+            options=(joinedload(Booking.invoice).joinedload(Invoice.invoice_items),),
+            joins=((Invoice, 'inner'),),
+            filters=filters,
+        )
+
+    def find_one_with_invoices_and_discount(self, *filters):
+        return self.find_one(
+            options=(joinedload(Booking.invoice).joinedload(Invoice.invoice_items), joinedload(Booking.discount)),
+            joins=((Invoice, 'outer'), (Discount, 'outer')),
+            filters=filters,
+        )
+
+    def find_one_with_seats_and_discount(self, *filters):
+        return self.find_one(
+            options=(joinedload(Booking.booking_seats), joinedload(Booking.discount)),
+            joins=((Discount, 'outer'),),
+            filters=filters,
+        )
+
+    def find_one_with_invoices_seats_and_discount(self, *filters):
+        return self.find_one(
+            options=(
+                joinedload(Booking.booking_seats),
+                joinedload(Booking.invoice).joinedload(Invoice.invoice_items),
+                joinedload(Booking.discount),
+            ),
+            joins=((Invoice, 'inner'), (Discount, 'outer')),
+            filters=filters,
         )
 
     def get(self, **kwargs) -> list[SQLModel]:

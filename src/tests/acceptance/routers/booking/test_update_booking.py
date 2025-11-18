@@ -1,12 +1,13 @@
 import uuid
 from unittest.mock import ANY
 
-from app.models import Booking
+from app.models import Booking, InvoiceItem
 from app.models.booking import BookingStatus
 from tests.acceptance.routers.booking._base_booking_test import _TestBaseBookingEndpoints
 from tests.common.factories.booking_factory import EnabledBookingFactory
 from tests.common.factories.customer_factory import EnabledCustomerFactory
 from tests.common.factories.discount_factory import EnabledDiscountFactory
+from tests.common.factories.invoice_factory import InvoiceItemFactory, IssuedInvoiceFactory
 from tests.common.factories.showtime_factory import EnabledShowtimeFactory
 
 
@@ -124,3 +125,37 @@ class TestUpdateShowtimeRouter(_TestBaseBookingEndpoints):
             assert booking.expired_at is None
             assert booking.created_at == ANY
             assert booking.updated_at == ANY
+
+    def test_update_booking_remove_discount(self):
+        discount = EnabledDiscountFactory()
+        booking = EnabledBookingFactory(status=BookingStatus.PENDING_PAYMENT.value, discount=discount)
+        customer = EnabledCustomerFactory()
+        showtime = EnabledShowtimeFactory()
+        invoice = IssuedInvoiceFactory(booking=booking)
+        InvoiceItemFactory(booking=booking, invoice=invoice, description='Seats')
+        InvoiceItemFactory(booking=booking, invoice=invoice, description='Discount code')
+        payload = {'customer_id': customer.id, 'showtime_id': str(showtime.id), 'discount_id': None}
+
+        response = self.client.patch(url=f'{self.base_path}/{booking.id}', json=payload)
+        json_response = response.json()
+
+        assert json_response['customer_id'] == payload['customer_id']
+        assert json_response['showtime_id'] == payload['showtime_id']
+        assert json_response['discount_id'] is None
+        assert json_response['status'] == BookingStatus.PENDING_PAYMENT.value
+        assert json_response['expired_at'] is None
+
+        with self.app.container.session() as session:
+            booking = session.query(Booking).first()
+            assert booking
+            assert isinstance(booking.id, uuid.UUID)
+            assert booking.customer_id == payload['customer_id']
+            assert str(booking.showtime_id) == payload['showtime_id']
+            assert booking.discount_id is None
+            assert booking.status == BookingStatus.PENDING_PAYMENT.value
+            assert booking.expired_at is None
+            assert booking.created_at == ANY
+            assert booking.updated_at == ANY
+
+            assert session.query(InvoiceItem).filter(InvoiceItem.description.like('%Discount%')).count() == 0
+            assert session.query(InvoiceItem).filter(InvoiceItem.description.like('%Seats%')).count() == 1

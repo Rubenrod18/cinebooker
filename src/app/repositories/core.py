@@ -48,20 +48,37 @@ class AbstractGetRepository(ABC):
 
 
 class FindOneMixin(AbstractBaseRepository, AbstractFindOneRepository):
-    def find_one(self, **filters) -> SQLModel:
+    def find_one(self, **kwargs) -> SQLModel:
+        options = kwargs.get('options')
+        joins = kwargs.get('joins')
+        filters = kwargs.get('filters')
+        filter_by = kwargs.get('filter_by')
+
         with self.session as session:
             query = session.query(self.model)
 
-            for field, value in filters.items():
-                if hasattr(self.model, field):
-                    query = query.filter(getattr(self.model, field) == value)
+            if options:
+                query = query.options(*options)
+
+            if joins:
+                for join_model, join_type in joins:
+                    if join_type == 'inner':
+                        query = query.join(join_model)
+                    elif join_type == 'outer':
+                        query = query.outerjoin(join_model)
+
+            if filters:
+                query = query.filter(*filters)
+
+            if filter_by:
+                query = query.filter_by(**filter_by)
 
             return query.first()
 
 
 class FindByIdMixin(AbstractFindByIdRepository, FindOneMixin):
     def find_by_id(self, record_id: Any) -> SQLModel:
-        return self.find_one(id=record_id)
+        return self.find_one(filter_by={'id': record_id})
 
 
 class GetMixin(AbstractBaseRepository, AbstractGetRepository):
