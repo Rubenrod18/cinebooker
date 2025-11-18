@@ -33,7 +33,25 @@ class BookingIdRequestSchema(booking_schemas.BookingIdRequestSchema):
     def validate_booking_id(
         cls, booking_id: UUID, booking_repository: BookingRepository = Provide[ServiceDIContainer.booking_repository]
     ) -> UUID:
-        booking = booking_repository.find_one_with_seats(
+        booking = booking_repository.find_one_with_seats_and_discount(
+            Booking.id == booking_id, Booking.status == BookingStatus.PENDING_PAYMENT
+        )
+
+        if not booking:
+            raise NotFoundException(description='Booking not found')
+
+        cls._booking = booking
+        return booking_id
+
+
+class BookingIdUpdateRequestSchema(booking_schemas.BookingIdRequestSchema):
+    @field_validator('booking_id')
+    @classmethod
+    @inject
+    def validate_booking_id(
+        cls, booking_id: UUID, booking_repository: BookingRepository = Provide[ServiceDIContainer.booking_repository]
+    ) -> UUID:
+        booking = booking_repository.find_one_with_invoices_seats_and_discount(
             Booking.id == booking_id, Booking.status == BookingStatus.PENDING_PAYMENT
         )
 

@@ -2,7 +2,7 @@ from datetime import datetime
 from uuid import UUID
 
 from dependency_injector.wiring import inject, Provide
-from pydantic import BaseModel, ConfigDict, Field, field_validator, PrivateAttr
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator, PrivateAttr
 
 from ..di_container import ServiceDIContainer
 from ..exceptions import NotFoundException
@@ -76,6 +76,16 @@ class BookingUpdateSchema(
     ) -> str:
         return cls._discount.id if discount_code else discount_code
 
+    @model_validator(mode='after')
+    def clean_values(self):
+        if self.customer_id is None:
+            del self.customer_id
+
+        if self.showtime_id is None:
+            del self.showtime_id
+
+        return self
+
 
 class BookingResponseSchema(core.UUIDPKMixin, core.CreatedUpdatedMixin, BaseModel):
     customer_id: int
@@ -97,7 +107,9 @@ class BookingIdRequestSchema(BaseModel):
     def validate_booking_id(
         cls, booking_id: UUID, booking_repository: BookingRepository = Provide[ServiceDIContainer.booking_repository]
     ) -> UUID:
-        booking = booking_repository.find_by_id(booking_id)
+        booking = booking_repository.find_one_with_invoices_and_discount(
+            Booking.id == booking_id, Booking.expired_at.is_(None)
+        )
 
         if not booking:
             raise NotFoundException(description='Booking not found')

@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 import factory
+from iso4217 import Currency
 
 from app.models import Invoice
 from app.models.invoice import InvoiceItem, InvoiceStatus
@@ -15,7 +16,9 @@ class InvoiceFactory(BaseFactory):
     booking = factory.SubFactory(BookingFactory)
 
     code = factory.Sequence(lambda n: f'Invoice_code_{n}')
-    currency = factory.Iterator(['eur', 'usd', 'gbp'])  # NOTE: PayPal supports fewer currencies than Stripe.
+    currency = factory.Iterator(
+        [Currency.EUR.value, Currency.USD.value, Currency.GBP.value]
+    )  # NOTE: PayPal supports fewer currencies than Stripe.
     total_base_price = factory.Faker(
         'pydecimal', left_digits=2, right_digits=2, positive=True, min_value=5, max_value=20
     )
@@ -29,6 +32,14 @@ class InvoiceFactory(BaseFactory):
     @factory.lazy_attribute
     def total_price(self):
         return (self.total_base_price + self.total_vat_price).quantize(Decimal('0.01'))
+
+
+class IssuedInvoiceFactory(InvoiceFactory):
+    status = InvoiceStatus.ISSUED
+
+
+class PaidInvoiceFactory(InvoiceFactory):
+    status = InvoiceStatus.PAID
 
 
 class InvoiceItemFactory(BaseFactory):

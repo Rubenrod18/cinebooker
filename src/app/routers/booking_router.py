@@ -101,10 +101,18 @@ def update_booking_route(
     payload: booking_schemas.BookingUpdateSchema,
     session: Annotated[Session, Depends(Provide[ServiceDIContainer.session])],
     booking_service: Annotated[BookingService, Depends(Provide[ServiceDIContainer.booking_service])],
+    invoice_item_service: Annotated[InvoiceItemService, Depends(Provide[ServiceDIContainer.invoice_item_service])],
     params: booking_schemas.BookingIdRequestSchema = Depends(),
 ) -> Booking:
-    booking = booking_service.update(params.booking, **payload.model_dump(exclude_unset=True))
+    booking = booking_service.update(params.booking, **payload.model_dump())
     session.add(booking)
+
+    if booking.invoice and booking.invoice.invoice_items and not booking.discount_id:
+        discount_item = next(
+            (item for item in booking.invoice.invoice_items if item.description.startswith('Discount ')), None
+        )
+        invoice_item_service.delete(discount_item)
+
     session.commit()
     return booking
 
@@ -156,6 +164,60 @@ def create_invoice_route(
             {'invoice_id': invoice.id, 'description': f'Discount {booking.discount.code}'}
         )
         discount_invoice_item = invoice_item_service.create(**discount_invoice_item_fields)
+        session.add(discount_invoice_item)
+
+    session.commit()
+    return invoice
+
+
+@router.patch(
+    '/{booking_id}/invoices',
+    summary='Update an Invoice',
+    response_model=invoice_schemas.InvoiceResponseSchema,
+    responses={
+        200: {
+            'description': 'Returns an updated Invoice',
+        },
+        404: {
+            'description': 'Booking not found',
+        },
+    },
+)
+@inject
+def update_invoice_route(
+    session: Annotated[Session, Depends(Provide[ServiceDIContainer.session])],
+    invoice_service: Annotated[InvoiceService, Depends(Provide[ServiceDIContainer.invoice_service])],
+    invoice_item_service: Annotated[InvoiceItemService, Depends(Provide[ServiceDIContainer.invoice_item_service])],
+    price_calculator_service: Annotated[
+        PriceCalculatorService, Depends(Provide[ServiceDIContainer.price_calculator_service])
+    ],
+    params: invoice_schemas.BookingIdUpdateRequestSchema = Depends(),
+) -> Invoice:
+    booking = params.booking
+
+    seat_invoice_item_fields = price_calculator_service.calculate_seat_invoice_item(booking, settings.DEFAULT_VAT_RATE)
+    discount_invoice_item_fields = price_calculator_service.calculate_discount_invoice_item(
+        booking, settings.DEFAULT_VAT_RATE
+    )
+    invoice_fields = price_calculator_service.calculate_invoice_prices(
+        seat_invoice_item_fields, discount_invoice_item_fields, settings.DEFAULT_VAT_RATE
+    )
+
+    invoice_fields['booking_id'] = booking.id
+    invoice = invoice_service.update(booking.invoice, **invoice_fields)
+    session.add(invoice)
+
+    seat_invoice_item_fields.update({'invoice_id': invoice.id, 'description': 'Seats'})
+    seat_invoice_item = invoice_item_service.update(booking.invoice.invoice_items[0], **seat_invoice_item_fields)
+    session.add(seat_invoice_item)
+
+    if booking.discount:
+        discount_invoice_item_fields.update(
+            {'invoice_id': invoice.id, 'description': f'Discount {booking.discount.code}'}
+        )
+        discount_invoice_item = invoice_item_service.update(
+            booking.invoice.invoice_items[1], **discount_invoice_item_fields
+        )
         session.add(discount_invoice_item)
 
     session.commit()

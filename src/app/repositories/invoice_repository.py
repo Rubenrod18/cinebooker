@@ -7,6 +7,7 @@ from app.repositories import core
 class InvoiceRepository(
     core.AbstractCreateRepository,
     core.FindOneMixin,
+    core.AbstractUpdateRepository,
 ):
     def __init__(self, session: Session):
         super().__init__(model=Invoice, session=session)
@@ -19,3 +20,9 @@ class InvoiceRepository(
 
     def find_by_code(self, code: str) -> Invoice:
         return self.find_one(code=code)
+
+    def update(self, record, **kwargs) -> Invoice | None:
+        for field, value in kwargs.items():
+            setattr(record, field, value)
+
+        return record

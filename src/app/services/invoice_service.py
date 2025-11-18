@@ -1,6 +1,3 @@
-import secrets
-import string
-
 from iso4217 import Currency
 from sqlmodel import Session
 
@@ -8,11 +5,13 @@ from app.models import Invoice
 from app.models.invoice import InvoiceStatus
 from app.repositories.invoice_repository import InvoiceRepository
 from app.services import core
+from app.utils import generate_unique_code
 
 
 class InvoiceService(
     core.AbstractBaseService,
     core.AbstractCreateService,
+    core.AbstractUpdateService,
 ):
     def __init__(
         self,
@@ -22,10 +21,8 @@ class InvoiceService(
         super().__init__(repository=invoice_repository or InvoiceRepository(session))
 
     def generate_unique_locator(self, length: int | None = None):
-        length = length or 13
-
         while True:
-            locator = ''.join(secrets.choice(string.digits) for _ in range(length))
+            locator = generate_unique_code(length)
 
             if not self.repository.find_by_code(locator):
                 return locator
@@ -39,3 +36,6 @@ class InvoiceService(
             }
         )
         return self.repository.create(**kwargs)
+
+    def update(self, record, **kwargs) -> Invoice:
+        return self.repository.update(record, **kwargs)

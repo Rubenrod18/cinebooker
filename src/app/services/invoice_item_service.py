@@ -8,6 +8,8 @@ from app.services import core
 class InvoiceItemService(
     core.AbstractBaseService,
     core.AbstractCreateService,
+    core.AbstractDeleteService,
+    core.AbstractUpdateService,
 ):
     def __init__(
         self,
@@ -18,3 +20,9 @@ class InvoiceItemService(
 
     def create(self, **kwargs) -> InvoiceItem:
         return self.repository.create(**kwargs)
+
+    def update(self, record, **kwargs) -> InvoiceItem:
+        return self.repository.update(record, **kwargs)
+
+    def delete(self, record, **kwargs) -> None:
+        self.repository.delete(record, **kwargs)
