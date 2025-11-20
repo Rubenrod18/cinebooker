@@ -9,6 +9,7 @@ from app.di_container import ServiceDIContainer
 from app.models import BookingSeat
 from app.schemas import booking_seat_schemas
 from app.services.booking_seat_service import BookingSeatService
+from app.services.ticket_service import TicketService
 
 router = APIRouter(prefix='/booking-seats', tags=['booking-seats'])
 
@@ -34,8 +35,11 @@ def create_booking_seat_route(
     payload: booking_seat_schemas.BookingSeatCreateSchema,
     session: Annotated[Session, Depends(Provide[ServiceDIContainer.session])],
     booking_seat_service: Annotated[BookingSeatService, Depends(Provide[ServiceDIContainer.booking_seat_service])],
+    ticket_service: Annotated[TicketService, Depends(Provide[ServiceDIContainer.ticket_service])],
 ) -> BookingSeat:
     booking_seat = booking_seat_service.create(**payload.model_dump())
+    session.commit()  # HACK: If I remove this line then it fails
+    ticket_service.create(**{'booking_seat_id': booking_seat.id, 'session': session})
     session.commit()
     return booking_seat
 

@@ -19,7 +19,7 @@ class InvoiceRepository(
         return invoice
 
     def find_by_code(self, code: str) -> Invoice:
-        return self.find_one(code=code)
+        return self.find_one(filter_by={'code': code})
 
     def update(self, record, **kwargs) -> Invoice | None:
         for field, value in kwargs.items():

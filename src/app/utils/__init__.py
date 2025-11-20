@@ -5,6 +5,7 @@ import secrets
 import string
 
 
-def generate_unique_code(length: int | None = None) -> str:
+def generate_unique_code(length: int | None = None, letters: bool = False) -> str:
     length = length or 13
-    return ''.join(secrets.choice(string.digits) for _ in range(length))
+    charset = string.ascii_uppercase + string.digits if letters else string.digits
+    return ''.join(secrets.choice(charset) for _ in range(length))

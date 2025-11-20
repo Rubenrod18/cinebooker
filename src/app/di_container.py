@@ -19,6 +19,7 @@ from app.repositories.payment_repository import PaymentRepository
 from app.repositories.screen_repository import ScreenRepository
 from app.repositories.seat_repository import SeatRepository
 from app.repositories.showtime_repository import ShowtimeRepository
+from app.repositories.ticket_repository import TicketRepository
 from app.services.auth_user_service import AuthUserService
 from app.services.booking_seat_service import BookingSeatService
 from app.services.booking_service import BookingService
@@ -32,6 +33,7 @@ from app.services.price_calculator_service import PriceCalculatorService
 from app.services.screen_service import ScreenService
 from app.services.seat_service import SeatService
 from app.services.showtime_service import ShowtimeService
+from app.services.ticket_service import TicketService
 from config import get_settings
 from database import SQLDatabase
 
@@ -102,6 +104,7 @@ class ServiceDIContainer(containers.DeclarativeContainer):
     screen_repository = providers.Factory(ScreenRepository, session=session)
     seat_repository = providers.Factory(SeatRepository, session=session)
     showtime_repository = providers.Factory(ShowtimeRepository, session=session)
+    ticket_repository = providers.Factory(TicketRepository, session=session)
 
     # Services
     auth_user_service = providers.Factory(AuthUserService, session=session, auth_user_repository=auth_user_repository)
@@ -127,3 +130,4 @@ class ServiceDIContainer(containers.DeclarativeContainer):
     screen_service = providers.Factory(ScreenService, session=session, screen_repository=screen_repository)
     seat_service = providers.Factory(SeatService, session=session, screen_repository=seat_repository)
     showtime_service = providers.Factory(ShowtimeService, session=session, showtime_repository=showtime_repository)
+    ticket_service = providers.Factory(TicketService, session=session, ticket_repository=ticket_repository)

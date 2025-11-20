@@ -8,7 +8,7 @@ from .core import IntegerPKMixin
 
 
 class TicketBarcodeType(BaseEnum):
-    QR = 'qr'
+    QR = 'qr'  # NOTE: Only this option is used
     CODE128 = 'code128'
     EAN13 = 'ean13'
 
@@ -24,7 +24,6 @@ class Ticket(IntegerPKMixin, SQLModel, table=True):
     booking_seat_id: int = Field(foreign_key='booking_seat.id')
     booking_seat: 'BookingSeat' = Relationship(back_populates='ticket', sa_relationship_kwargs={'uselist': False})
 
-    ticket_code: str
     barcode_value: str
     barcode_type: TicketBarcodeType = Field(
         sa_column=sa.Column(
@@ -54,3 +53,8 @@ class Ticket(IntegerPKMixin, SQLModel, table=True):
         nullable=False,
     )
     redeemed_at: datetime | None
+
+    __table_args__ = (
+        sa.PrimaryKeyConstraint('id'),
+        sa.UniqueConstraint('barcode_value'),
+    )
