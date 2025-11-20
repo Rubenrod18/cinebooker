@@ -1,9 +1,11 @@
 import uuid
+from datetime import datetime
 from unittest.mock import ANY
 
 import pytest
 
-from app.models import BookingSeat
+from app.models import BookingSeat, Ticket
+from app.models.ticket import TicketStatus
 from app.utils import financials
 from tests.acceptance.routers.booking_seat._base_booking_seats_test import _TestBaseBookingSeatEndpoints
 from tests.common.factories.booking_factory import (
@@ -215,3 +217,11 @@ class TestCreateBookingSeatEndpoint(_TestBaseBookingSeatEndpoints):
             assert str(booking_seat.base_price) == payload['base_price']
             assert str(booking_seat.vat_rate) == payload['vat_rate']
             assert str(booking_seat.price_with_vat) == expected_price_with_vat
+
+            ticket = session.query(Ticket).first()
+            assert ticket
+            assert ticket.booking_seat_id == booking_seat.id
+            assert len(ticket.barcode_value) == 30
+            assert ticket.status == TicketStatus.ISSUED
+            assert isinstance(ticket.issued_at, datetime)
+            assert ticket.redeemed_at is None

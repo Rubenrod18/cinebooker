@@ -27,6 +27,7 @@ class BaseConfig(BaseSettings):
 
     # Mr Developer
     DEFAULT_VAT_RATE: Decimal = Decimal(os.getenv('DEFAULT_VAT_RATE', Decimal('0.21')))
+    BARCODE_LENGTH: int = int(os.getenv('BARCODE_LENGTH', 30))
 
     class Config:
         env_file = '.env'
