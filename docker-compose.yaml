@@ -39,6 +39,22 @@ services:
     networks:
       - cinebooker__network
 
+  redis:
+    container_name: cinebooker__redis
+    image: redis:8.2-alpine
+    env_file:
+      - .env
+    ports:
+      - "6479:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    networks:
+      - cinebooker__network
+
 volumes:
   postgres_data:
     driver: local

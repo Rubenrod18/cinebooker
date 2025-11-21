@@ -2,6 +2,7 @@
 
 import os
 
+import redis
 from dependency_injector import containers, providers
 from dotenv import load_dotenv
 
@@ -79,6 +80,15 @@ class ServiceDIContainer(containers.DeclarativeContainer):
     session = providers.Resource(
         lambda db: db.sessionmaker(),
         db=sql_db,
+    )
+
+    # Redis
+    redis_client = providers.Singleton(
+        redis.Redis,
+        host=os.getenv('REDIS_HOST'),
+        port=int(os.getenv('REDIS_PORT')),
+        db=int(os.getenv('REDIS_DB')),
+        decode_responses=True,
     )
 
     # Providers
