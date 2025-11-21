@@ -1,6 +1,7 @@
 from decimal import Decimal
 from uuid import UUID
 
+import redis
 from dependency_injector.wiring import inject, Provide
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator, PrivateAttr
 
@@ -39,8 +40,13 @@ class BookingSeatCreateSchema(BookingIdRequestSchema, SeatIdRequestSchema):
     @model_validator(mode='after')
     @inject
     def check_seat_available(
-        self, booking_seat_repository: BookingSeatRepository = Provide[ServiceDIContainer.booking_seat_repository]
+        self,
+        booking_seat_repository: BookingSeatRepository = Provide[ServiceDIContainer.booking_seat_repository],
+        redis_client: redis.Redis = Provide[ServiceDIContainer.redis_client],
     ):
+        if redis_client.exists(f'booking_seat:{self._booking.showtime_id}_{self.seat_id}'):
+            raise UnprocessableEntityException(description='Seat is not available')
+
         if self._booking and not booking_seat_repository.is_seat_available(self._booking.showtime_id, self.seat_id):
             raise UnprocessableEntityException(description='Seat is not available')
 

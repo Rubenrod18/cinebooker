@@ -1,8 +1,9 @@
 import uuid
 from datetime import datetime
-from unittest.mock import ANY
+from unittest.mock import ANY, MagicMock
 
 import pytest
+from redis import Redis
 
 from app.models import BookingSeat, Ticket
 from app.models.ticket import TicketStatus
@@ -180,7 +181,32 @@ class TestCreateBookingSeatEndpoint(_TestBaseBookingSeatEndpoints):
 
         assert response.json() == {'detail': 'Seat is not available'}
 
+    def test_create_seat_not_available_with_redis(self):
+        mock_redis_client = MagicMock(spec=Redis)
+        mock_redis_client.exists.return_value = True
+
+        booking_seat = ConfirmedBookingSeatFactory()
+        booking = PendingPaymentBookingFactory(showtime=booking_seat.booking.showtime)
+
+        payload = {
+            'booking_id': str(booking.id),
+            'seat_id': booking_seat.seat.id,
+            'base_price': str(
+                self.faker.pydecimal(left_digits=2, right_digits=2, positive=True, min_value=5, max_value=20)
+            ),
+            'vat_rate': str(
+                self.faker.pydecimal(left_digits=1, right_digits=2, positive=True, min_value=0.05, max_value=0.25)
+            ),
+        }
+
+        response = self.client.post(url=self.base_path, json=payload, exp_code=422)
+
+        assert response.json() == {'detail': 'Seat is not available'}
+
     def test_create_booking_seat(self):
+        mock_redis_client = MagicMock(spec=Redis)
+        mock_redis_client.exists.return_value = False
+
         booking = PendingPaymentBookingFactory()
         seat = EnabledSeatFactory()
 
@@ -195,19 +221,24 @@ class TestCreateBookingSeatEndpoint(_TestBaseBookingSeatEndpoints):
             ),
         }
 
-        response = self.client.post(url=self.base_path, json=payload)
+        with self.app.container.redis_client.override(mock_redis_client):
+            response = self.client.post(url=self.base_path, json=payload)
 
-        expected_price_with_vat = str(financials.apply_vat_rate(payload['base_price'], payload['vat_rate']))
-        assert response.json() == {
-            'base_price': str(payload['base_price']),
-            'booking_id': payload['booking_id'],
-            'created_at': ANY,
-            'id': 1,
-            'price_with_vat': expected_price_with_vat,
-            'seat_id': payload['seat_id'],
-            'updated_at': ANY,
-            'vat_rate': payload['vat_rate'],
-        }
+            expected_price_with_vat = str(financials.apply_vat_rate(payload['base_price'], payload['vat_rate']))
+            assert response.json() == {
+                'base_price': str(payload['base_price']),
+                'booking_id': payload['booking_id'],
+                'created_at': ANY,
+                'id': 1,
+                'price_with_vat': expected_price_with_vat,
+                'seat_id': payload['seat_id'],
+                'updated_at': ANY,
+                'vat_rate': payload['vat_rate'],
+            }
+
+            mock_redis_client.set.assert_called_once_with(
+                name=f'booking_seat:{booking.showtime_id}_{seat.id}', value='locked', ex=300
+            )
 
         with self.app.container.session() as session:
             booking_seat = session.query(BookingSeat).first()

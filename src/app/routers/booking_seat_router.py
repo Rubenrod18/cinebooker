@@ -1,5 +1,6 @@
 from typing import Annotated
 
+import redis
 from dependency_injector.wiring import inject, Provide
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
@@ -36,11 +37,18 @@ def create_booking_seat_route(
     session: Annotated[Session, Depends(Provide[ServiceDIContainer.session])],
     booking_seat_service: Annotated[BookingSeatService, Depends(Provide[ServiceDIContainer.booking_seat_service])],
     ticket_service: Annotated[TicketService, Depends(Provide[ServiceDIContainer.ticket_service])],
+    redis_client: Annotated[redis.Redis, Depends(Provide[ServiceDIContainer.redis_client])],
 ) -> BookingSeat:
-    booking_seat = booking_seat_service.create(**payload.model_dump())
+    booking_seat_fields = payload.model_dump()
+    booking_seat = booking_seat_service.create(**booking_seat_fields)
     session.commit()  # HACK: If I remove this line then it fails
     ticket_service.create(**{'booking_seat_id': booking_seat.id, 'session': session})
     session.commit()
+    redis_client.set(
+        name=f'booking_seat:{payload.booking.showtime_id}_{booking_seat_fields["seat_id"]}',
+        value='locked',
+        ex=300,  # NOTE: 5 min
+    )
     return booking_seat
 
 
