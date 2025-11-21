@@ -237,7 +237,7 @@ class TestCreateBookingSeatEndpoint(_TestBaseBookingSeatEndpoints):
             }
 
             mock_redis_client.set.assert_called_once_with(
-                name=f'booking_seat:{booking.showtime_id}_1', value='locked', ex=300
+                name=f'booking_seat:{booking.showtime_id}_{seat.id}', value='locked', ex=300
             )
 
         with self.app.container.session() as session:
