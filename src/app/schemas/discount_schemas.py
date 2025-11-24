@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, UTC
 from decimal import Decimal
 
 from dependency_injector.wiring import inject, Provide
@@ -35,7 +35,7 @@ class DiscountCreateSchema(BaseModel):
     @classmethod
     def validate_expires_at(cls, value: date) -> date | None:
         if isinstance(value, date):
-            now = datetime.now().date()
+            now = datetime.now(UTC).date()
             if value < now:
                 raise UnprocessableEntityException(description='Must be greater than or equal to the current datetime')
         return value
@@ -60,7 +60,7 @@ class DiscountUpdateSchema(BaseModel):
     @classmethod
     def validate_expires_at(cls, value: date) -> date | None:
         if isinstance(value, date):
-            now = datetime.now().date()
+            now = datetime.now(UTC).date()
             if value < now:
                 raise UnprocessableEntityException(description='Must be greater than or equal to the current datetime')
         return value

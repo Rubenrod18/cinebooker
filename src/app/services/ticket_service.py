@@ -1,3 +1,5 @@
+from datetime import datetime, UTC
+
 from sqlmodel import Session
 
 from app.models import Ticket
@@ -39,3 +41,7 @@ class TicketService(
 
     def update(self, record, **kwargs) -> Ticket:
         return self.repository.update(record, **kwargs)
+
+    def redeemed(self, record, **kwargs) -> Ticket:
+        kwargs.update({'status': TicketStatus.REDEEMED, 'redeemed_at': datetime.now(UTC)})
+        return self.update(record, **kwargs)

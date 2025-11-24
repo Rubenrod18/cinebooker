@@ -6,7 +6,7 @@ from app.models import Ticket
 from app.models.booking import BookingStatus
 from app.models.ticket import TicketBarcodeType, TicketStatus
 from tests.common.factories.base_factory import BaseFactory
-from tests.common.factories.booking_factory import BookingSeatFactory
+from tests.common.factories.booking_factory import BookingSeatFactory, ConfirmedBookingSeatFactory
 
 
 class TicketFactory(BaseFactory):
@@ -15,7 +15,6 @@ class TicketFactory(BaseFactory):
 
     booking_seat = factory.SubFactory(BookingSeatFactory)
 
-    ticket_code = factory.Sequence(lambda n: f'Ticket_code_{n}')
     barcode_value = factory.Sequence(lambda n: f'Barcode_{n}')
     barcode_type = factory.Iterator(TicketBarcodeType.to_list())
     status = factory.Iterator(TicketStatus.to_list())
@@ -30,3 +29,15 @@ class TicketFactory(BaseFactory):
             redeemed_at = self.issued_at + timedelta(days=1)
 
         return redeemed_at
+
+
+class ConfirmedBookingSeatTicketFactory(TicketFactory):
+    booking_seat = factory.SubFactory(ConfirmedBookingSeatFactory)
+
+
+class IssuedTicketFactory(ConfirmedBookingSeatTicketFactory):
+    status = TicketStatus.ISSUED
+
+
+class RedeemedTicketFactory(ConfirmedBookingSeatTicketFactory):
+    status = TicketStatus.REDEEMED
