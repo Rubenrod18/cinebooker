@@ -33,7 +33,7 @@ jobs:
       max-parallel: 4
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         name: Checkout code from the repository
 
       - name: Set up Python 3.13
