@@ -70,6 +70,8 @@ class ServiceDIContainer(containers.DeclarativeContainer):
             '.schemas.showtime_schemas',
             '.routers.stripe_router',
             '.schemas.stripe_schemas',
+            '.routers.ticket_router',
+            '.schemas.ticket_schemas',
         ]
     )
     # OPTIMIZE: Load all env vars on this config

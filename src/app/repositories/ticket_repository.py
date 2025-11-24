@@ -23,6 +23,7 @@ class TicketRepository(
         for field, value in kwargs.items():
             setattr(record, field, value)
 
+        self.session.add(record)
         return record
 
     def find_by_barcode_value(self, barcode_value: str) -> SQLModel | None:
