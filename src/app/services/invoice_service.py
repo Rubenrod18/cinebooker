@@ -39,3 +39,7 @@ class InvoiceService(
 
     def update(self, record, **kwargs) -> Invoice:
         return self.repository.update(record, **kwargs)
+
+    def paid(self, record, **kwargs) -> Invoice:
+        kwargs['status'] = InvoiceStatus.PAID
+        return self.update(record, **kwargs)

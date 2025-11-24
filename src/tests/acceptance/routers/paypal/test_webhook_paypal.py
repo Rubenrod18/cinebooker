@@ -2,15 +2,16 @@ import base64
 import os
 from unittest.mock import MagicMock
 
-from app.models import Booking, Payment
+from app.models import Booking, Invoice, Payment
 from app.models.booking import BookingStatus
+from app.models.invoice import InvoiceStatus
 from app.models.payment import PaymentStatus
 from app.providers import paypal_provider
 from app.providers.paypal_provider import PayPalWebhookVerificationStatus
 from app.services.booking_service import BookingService
 from tests.acceptance.routers.paypal._base_paypal_test import _TestBasePayPalEndpoints
 from tests.common.factories.booking_factory import PendingPaymentBookingFactory
-from tests.common.factories.invoice_factory import InvoiceFactory, InvoiceItemFactory
+from tests.common.factories.invoice_factory import InvoiceItemFactory, IssuedInvoiceFactory
 from tests.common.factories.payment_factory import (
     PendingPayPalPalPaymentFactory,
 )
@@ -84,7 +85,7 @@ class TestWebhookPayPalEndpoint(_TestBasePayPalEndpoints):
     def test_webhook_payment_success(self, app):
         booking = PendingPaymentBookingFactory()
         payment = PendingPayPalPalPaymentFactory(booking=booking)
-        invoice = InvoiceFactory(booking=booking)
+        invoice = IssuedInvoiceFactory(booking=booking)
         [InvoiceItemFactory(invoice=invoice) for _ in range(2)]
 
         random_bytes = os.urandom(48)  # NOTE: 48 bytes ≈ 64 chars when base64 encoded
@@ -115,7 +116,6 @@ class TestWebhookPayPalEndpoint(_TestBasePayPalEndpoints):
             )
 
         with self.app.container.session() as session:
-            # TODO: Pending to mark the invoice as paid
             query = session.query(Payment).filter()
             assert query.count() == 1
 
@@ -132,10 +132,17 @@ class TestWebhookPayPalEndpoint(_TestBasePayPalEndpoints):
             assert found_booking.id == found_payment.booking_id
             assert found_booking.status == BookingStatus.CONFIRMED
 
+            query = session.query(Invoice).filter()
+            assert query.count() == 1
+
+            found_invoice = query.first()
+            assert found_invoice.id == invoice.id
+            assert found_invoice.status == InvoiceStatus.PAID
+
     def test_webhook_payment_cancelled(self, app):
         booking = PendingPaymentBookingFactory()
         payment = PendingPayPalPalPaymentFactory(booking=booking)
-        invoice = InvoiceFactory(booking=booking)
+        invoice = IssuedInvoiceFactory(booking=booking)
         [InvoiceItemFactory(invoice=invoice) for _ in range(2)]
         resource = {'id': payment.provider_payment_id}
 
@@ -182,3 +189,10 @@ class TestWebhookPayPalEndpoint(_TestBasePayPalEndpoints):
             found_booking = query.first()
             assert found_booking.id == found_payment.booking_id
             assert found_booking.status == BookingStatus.CANCELLED
+
+            query = session.query(Invoice).filter()
+            assert query.count() == 1
+
+            found_invoice = query.first()
+            assert found_invoice.id == invoice.id
+            assert found_invoice.status == InvoiceStatus.ISSUED

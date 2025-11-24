@@ -12,6 +12,7 @@ from app.models.payment import PaymentProvider
 from app.providers import paypal_provider
 from app.schemas import payment_schemas, paypal_schemas
 from app.services.booking_service import BookingService
+from app.services.invoice_service import InvoiceService
 from app.services.payment_service import PaymentService
 
 router = APIRouter(prefix='/paypal', tags=['paypal'])
@@ -75,6 +76,7 @@ async def paypal_webhook(
     session: Annotated[Session, Depends(Provide[ServiceDIContainer.session])],
     booking_service: Annotated[BookingService, Depends(Provide[ServiceDIContainer.booking_service])],
     payment_service: Annotated[PaymentService, Depends(Provide[ServiceDIContainer.payment_service])],
+    invoice_service: Annotated[InvoiceService, Depends(Provide[ServiceDIContainer.invoice_service])],
     paypal_transmission_id: str | None = Header(None, alias='PAYPAL-TRANSMISSION-ID'),
     paypal_transmission_time: str | None = Header(None, alias='PAYPAL-TRANSMISSION-TIME'),
     paypal_cert_url: str | None = Header(None, alias='PAYPAL-CERT-URL'),
@@ -124,7 +126,7 @@ async def paypal_webhook(
         if event_type == paypal_provider.PayPalEventType.PAYMENT_CAPTURE_COMPLETED.value:
             payment_service.completed(payment, **{'provider_metadata': None})
             booking_service.confirmed(payment.booking)
-            # TODO: Pending to mark the invoice as paid  # pylint: disable=fixme
+            invoice_service.paid(payment.booking.invoice)
             logger.info('✅ Payment succeeded!')
         else:
             payment_service.cancelled(payment, **{'provider_metadata': resource})

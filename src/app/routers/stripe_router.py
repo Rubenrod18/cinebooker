@@ -12,6 +12,7 @@ from app.models.payment import PaymentProvider
 from app.providers.stripe_provider import StripeEventType, StripeProvider
 from app.schemas import payment_schemas, stripe_schemas
 from app.services.booking_service import BookingService
+from app.services.invoice_service import InvoiceService
 from app.services.payment_service import PaymentService
 
 router = APIRouter(prefix='/stripe', tags=['stripe'])
@@ -65,6 +66,7 @@ async def create_showtime_route(
     stripe_provider: Annotated[StripeProvider, Depends(Provide[ServiceDIContainer.stripe_provider])],
     booking_service: Annotated[BookingService, Depends(Provide[ServiceDIContainer.booking_service])],
     payment_service: Annotated[PaymentService, Depends(Provide[ServiceDIContainer.payment_service])],
+    invoice_service: Annotated[InvoiceService, Depends(Provide[ServiceDIContainer.invoice_service])],
 ) -> None:
     # NOTE: await is required because request.body() is async and must be awaited to get the actual data
     payload = await request.body()
@@ -84,7 +86,7 @@ async def create_showtime_route(
 
         payment_service.completed(payment, **{'provider_payment_id': intent.get('id'), 'provider_metadata': None})
         booking_service.confirmed(payment.booking)
-        # TODO: Pending to mark the invoice as paid  # pylint: disable=fixme
+        invoice_service.paid(payment.booking.invoice)
         session.commit()
         logger.info('✅ Payment succeeded!')
     elif event['type'] == StripeEventType.PAYMENT_INTENT_FAILED.value:
