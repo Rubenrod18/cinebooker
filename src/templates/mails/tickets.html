@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Your CineBooker Tickets</title>
+
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f6f6f6;
+                margin: 0;
+                padding: 0;
+            }
+
+            .container {
+                max-width: 650px;
+                margin: auto;
+                background: white;
+                border-radius: 8px;
+                padding: 20px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            h1 {
+                text-align: center;
+                color: #333;
+            }
+
+            .movie-info {
+                background: #eef1f7;
+                padding: 15px;
+                border-radius: 6px;
+                margin-bottom: 25px;
+            }
+
+            .ticket {
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 20px;
+                background: #fafafa;
+            }
+
+            .ticket img {
+                width: 140px;
+                height: 140px;
+                margin-bottom: 10px;
+                display: block;
+            }
+
+            .ticket-title {
+                font-size: 18px;
+                font-weight: bold;
+                margin-bottom: 8px;
+                color: #222;
+            }
+
+            .footer {
+                margin-top: 25px;
+                text-align: center;
+                font-size: 13px;
+                color: #777;
+            }
+
+            ul { padding-left: 20px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Your CineBooker Tickets</h1>
+            <div class="movie-info">
+                <p><strong>Movie:</strong> {{ movie_title }}</p>
+                <p><strong>Date & Time:</strong> {{ show_datetime }}</p>
+                <p><strong>Screen:</strong> {{ screen_name }}</p>
+                <p><strong>Payment Time:</strong> {{ payment_datetime }}</p>
+                <p><strong>Booking ID:</strong> {{ booking_id }}</p>
+            </div>
+
+            <h2>Your Tickets</h2>
+            {% for ticket in tickets %}
+            <div class="ticket">
+                <div class="ticket-title">
+                    Ticket {{ loop.index }}
+                </div>
+                <img src="{{ ticket.qr_base64 }}" alt="QR Code">
+                <p><strong>Seat:</strong> Row {{ ticket.row }}, Number {{ ticket.number }}</p>
+                <p><strong>Barcode:</strong> {{ ticket.barcode_value }}</p>
+            </div>
+            {% endfor %}
+
+            <div class="footer">
+                Thanks for choosing CineBooker! Enjoy your movie 🎬
+            </div>
+        </div>
+    </body>
+</html>
