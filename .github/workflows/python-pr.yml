@@ -29,6 +29,11 @@ jobs:
         ports:
           - 6379:6379
 
+      mailpit:
+        image: axllent/mailpit
+        ports:
+          - 1025:1025
+
     strategy:
       max-parallel: 4
 

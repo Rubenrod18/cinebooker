@@ -14,6 +14,7 @@ dependencies = [
     "psycopg2>=2.9.10",
     "pydantic-settings>=2.8.1",
     "python-dotenv>=1.0.1",
+    "qrcode[pil]>=8.2",
     "redis>=7.1.0",
     "sqlmodel>=0.0.23",
     "stripe>=13.0.1",
