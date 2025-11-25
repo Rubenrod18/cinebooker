@@ -55,6 +55,15 @@ services:
     networks:
       - cinebooker__network
 
+  mailpit:
+    image: axllent/mailpit
+    container_name: cinebooker__mailpit
+    ports:
+      - "1025:1025"  # SMTP server port
+      - "8025:8025"  # Web UI port for Mailpit
+    networks:
+      - cinebooker__network
+
 volumes:
   postgres_data:
     driver: local

@@ -41,7 +41,7 @@ linter: ## Run Pylint on the app directory, disabling refactor warnings
 	pylint . --disable=R --rcfile=.pylintrc
 
 test: ## Run tests
-	@uv run pytest
+	ENVIRONMENT=testing uv run pytest
 
 test-parallel:  ## Run tests in parallel
-	@uv run pytest --numprocesses=$(PARALLEL_TEST) --maxfail=$(MAX_FAIL_TEST)
+	ENVIRONMENT=testing uv run pytest --numprocesses=$(PARALLEL_TEST) --maxfail=$(MAX_FAIL_TEST)
