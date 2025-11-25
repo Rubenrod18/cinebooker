@@ -41,7 +41,7 @@ services:
 
   redis:
     container_name: cinebooker__redis
-    image: redis:8.2-alpine
+    image: redis:8.4-alpine
     env_file:
       - .env
     ports:
