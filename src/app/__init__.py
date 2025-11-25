@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 
+import extensions
 from app.routers import get_routers
 
 
@@ -8,19 +9,12 @@ def _register_routers(app: FastAPI) -> None:
         app.include_router(router)
 
 
-def _init_python_dependency_injector(app: FastAPI) -> None:
-    from app.di_container import ServiceDIContainer  # pylint: disable=import-outside-toplevel
-
-    container = ServiceDIContainer()
-    app.container = container
-
-
 def create_app() -> FastAPI:
     app = FastAPI(
         title='Cinebooker API',
     )
 
-    _init_python_dependency_injector(app)
+    extensions.init_app(app)
     _register_routers(app)
 
     return app
