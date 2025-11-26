@@ -28,6 +28,18 @@ migrate-rollback:  ## Revert to a previous database migration
 seed:  ## Fill database with fake data
 	docker compose exec app uv run python cli.py seed
 
+
+## === CELERY ===
+
+## Checks the health/status of Celery workers.
+celery.status:
+	@uv run celery -A app.celery status
+
+## Lists all the tasks registered with the Celery workers.
+celery.registered_tasks:
+	@uv run celery -A app.celery inspect registered
+
+
 # ==============================================
 # ==== COVERAGE, LINTER AND TEST COMMANDS ======
 # ==============================================

@@ -41,7 +41,7 @@ services:
 
   redis:
     container_name: cinebooker__redis
-    image: redis:8.4-alpine
+    image: redis:7.4-alpine  # NOTE: redis cannot be updated until a new celery version is released
     env_file:
       - .env
     ports:
@@ -54,6 +54,39 @@ services:
       retries: 3
     networks:
       - cinebooker__network
+
+  celery:
+    << : *app-common
+    container_name: cinebooker__celery
+    command: 'celery.sh'
+    depends_on:
+      - app
+    networks:
+      - cinebooker__network
+    healthcheck:
+      test: ["CMD", "uv", "run", "celery", "-A", "app.celery.celery", "status"]
+      start_period: 5s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  flower:
+    << : *app-common
+    image: mher/flower:latest
+    container_name: cinebooker__flower
+    depends_on:
+      celery:
+        condition: service_healthy
+    ports:
+      - "5555:5555"
+    networks:
+      - cinebooker__network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5555/health"]
+      start_period: 5s
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   mailpit:
     image: axllent/mailpit

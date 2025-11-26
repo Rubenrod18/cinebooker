@@ -1,6 +1,7 @@
 import json
 import os
 from dataclasses import asdict, dataclass
+from unittest import mock
 from unittest.mock import MagicMock
 
 from app.models import Booking, Invoice, Payment
@@ -27,7 +28,8 @@ class WebhookEvent:
 
 
 class TestWebhookStripeEndpoint(_TestBaseStripeEndpoints):
-    def test_webhook_payment_success(self, app):
+    @mock.patch(target='app.routers.stripe_router.send_email_to_customer_task', autospec=True)
+    def test_webhook_payment_success(self, mock_send_email_to_customer_task, app):
         header_stripe_signature = fake.pystr(min_chars=32, max_chars=32)
         payload = {'data': ''}
 
@@ -60,6 +62,7 @@ class TestWebhookStripeEndpoint(_TestBaseStripeEndpoints):
             sig_header=header_stripe_signature,
             webhook_secret=os.getenv('STRIPE_WEBHOOK_SECRET'),
         )
+        mock_send_email_to_customer_task.delay.assert_called_once_with(payment.id)
 
         with self.app.container.session() as session:
             query = session.query(Payment).filter()

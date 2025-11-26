@@ -20,7 +20,7 @@ jobs:
           - 5432:5432
 
       redis:
-        image: redis:8.2-alpine
+        image: redis:7.4-alpine  # NOTE: redis cannot be updated until a new celery version is released
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s

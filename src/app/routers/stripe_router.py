@@ -7,15 +7,14 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from starlette import status
 
+from app.celery.tasks import send_email_to_customer_task
 from app.di_container import ServiceDIContainer
 from app.models.payment import PaymentProvider
 from app.providers.stripe_provider import StripeEventType, StripeProvider
-from app.routers.paypal_router import send_email_to_customer
 from app.schemas import payment_schemas, stripe_schemas
 from app.services.booking_service import BookingService
 from app.services.invoice_service import InvoiceService
 from app.services.payment_service import PaymentService
-from extensions import get_fastapi_mail
 
 router = APIRouter(prefix='/stripe', tags=['stripe'])
 logger = logging.getLogger(__name__)
@@ -69,7 +68,6 @@ async def create_showtime_route(
     booking_service: Annotated[BookingService, Depends(Provide[ServiceDIContainer.booking_service])],
     payment_service: Annotated[PaymentService, Depends(Provide[ServiceDIContainer.payment_service])],
     invoice_service: Annotated[InvoiceService, Depends(Provide[ServiceDIContainer.invoice_service])],
-    fastapi_mail=Depends(get_fastapi_mail),
 ) -> None:
     # NOTE: await is required because request.body() is async and must be awaited to get the actual data
     payload = await request.body()
@@ -92,7 +90,7 @@ async def create_showtime_route(
         invoice_service.paid(payment.booking.invoice)
         session.commit()
         logger.info('✅ Payment succeeded!')
-        await send_email_to_customer(fastapi_mail, payment)
+        send_email_to_customer_task.delay(payment.id)
     elif event['type'] == StripeEventType.PAYMENT_INTENT_FAILED.value:
         intent = event['data']['object']
         payment_id = intent.get('metadata', {}).get('payment_id')

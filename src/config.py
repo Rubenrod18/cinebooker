@@ -15,6 +15,18 @@ class BaseConfig(BaseSettings):
     # SQLAlchemy
     DATABASE_URL: str = os.getenv('SQLALCHEMY_DATABASE_URI')
 
+    # Celery
+    CELERY_CONFIGURATION: dict = {
+        'worker_send_task_events': True,
+        'broker_url': os.getenv('CELERY_BROKER_URL'),
+        'result_backend': os.getenv('CELERY_RESULT_BACKEND'),
+        'imports': ('app.celery.tasks',),
+        'accept_content': ['json'],
+        'task_serializer': 'json',
+        'result_serializer': 'json',
+        'timezone': 'Europe/Madrid',
+    }
+
     # Stripe
     STRIPE_API_KEY: str = os.getenv('STRIPE_API_KEY')
     STRIPE_WEBHOOK_SECRET: str = os.getenv('STRIPE_WEBHOOK_SECRET')
