@@ -1,5 +1,6 @@
 import base64
 import os
+from unittest import mock
 from unittest.mock import MagicMock
 
 from app.models import Booking, Invoice, Payment
@@ -82,7 +83,8 @@ class TestWebhookPayPalEndpoint(_TestBasePayPalEndpoints):
 
         assert response.json() == {'detail': 'Payment not found'}
 
-    def test_webhook_payment_success(self, app):
+    @mock.patch(target='app.routers.paypal_router.send_email_to_customer_task', autospec=True)
+    def test_webhook_payment_success(self, mock_send_email_to_customer_task, app):
         booking = PendingPaymentBookingFactory()
         payment = PendingPayPalPalPaymentFactory(booking=booking)
         invoice = IssuedInvoiceFactory(booking=booking)
@@ -107,7 +109,7 @@ class TestWebhookPayPalEndpoint(_TestBasePayPalEndpoints):
                 },
                 headers={
                     'PAYPAL-TRANSMISSION-ID': fake.uuid4(),
-                    'PAYPAL-TRANSMISSION-TIME': fake.iso8601(tzinfo=None),  # e.g. "2025-10-30T14:25:43Z"
+                    'PAYPAL-TRANSMISSION-TIME': fake.iso8601(tzinfo=None),
                     'PAYPAL-CERT-URL': f'{self.paypal_api_base}/certs/CERT-{fake.hexify(text="^^^^^^^^^^^^^^^^")}',
                     'PAYPAL-AUTH-ALGO': 'SHA256withRSA',
                     'PAYPAL-TRANSMISSION-SIG': fake_signature,
@@ -115,6 +117,7 @@ class TestWebhookPayPalEndpoint(_TestBasePayPalEndpoints):
                 exp_code=204,
             )
 
+        mock_send_email_to_customer_task.delay.assert_called_once_with(payment.id)
         with self.app.container.session() as session:
             query = session.query(Payment).filter()
             assert query.count() == 1
