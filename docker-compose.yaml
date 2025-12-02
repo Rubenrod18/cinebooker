@@ -41,7 +41,7 @@ services:
 
   redis:
     container_name: cinebooker__redis
-    image: redis:7.4-alpine  # NOTE: redis cannot be updated until a new celery version is released
+    image: redis:8.4-alpine  # NOTE: redis cannot be updated until a new celery version is released
     env_file:
       - .env
     ports:
