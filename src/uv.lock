@@ -839,11 +839,11 @@ wheels = [
 
 [[package]]
 name = "iso4217"
-version = "1.14.20250512"
+version = "1.15.20260101"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/07/29/db0854475507162050c6245be61f37c7216d4157c09ec808ed13cc003d27/iso4217-1.14.20250512.tar.gz", hash = "sha256:f036bd5460f1d371f2df253e90be5032930c8f76512f3a02ecfa5ad1e9fb164b", size = 12622, upload-time = "2025-06-22T01:28:04.377Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5d/e3/c02f51f03ae27c11f660d8f04bf6f8cfcc26325faae14f0a75e75f751507/iso4217-1.15.20260101.tar.gz", hash = "sha256:fde8d0ff97cd5fc4879daf785fe6efcba89bad9b3cb95722b30598324b9786b6", size = 13505, upload-time = "2026-01-17T14:15:02.172Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5d/6f/8e1d65453c7099f863d4785d8d3370192d4bcaffc26ad2bf0542c0fbd7f3/iso4217-1.14.20250512-py2.py3-none-any.whl", hash = "sha256:f23974b5b6eb264709f6d764703d5c03f168807305077cb76d7cdfcca87d7d76", size = 10862, upload-time = "2025-06-22T01:28:03.309Z" },
+    { url = "https://files.pythonhosted.org/packages/19/e7/376083be5c1aebbd7e7729d42d7b8efa102c3c7b2f262fa4f87b49ba7197/iso4217-1.15.20260101-py2.py3-none-any.whl", hash = "sha256:acfe988f6bd3599cf89ebbf06247bcb5d6483e69ab11a0210904d5369774a036", size = 11810, upload-time = "2026-01-17T14:15:00.529Z" },
 ]
 
 [[package]]
