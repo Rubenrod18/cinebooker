@@ -1,10 +1,10 @@
-from enum import Enum
+import enum
 
 DEFAULT_DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 DEFAULT_DATE_FORMAT = '%Y-%m-%d'
 
 
-class BaseEnum(str, Enum):
+class BaseEnum(enum.StrEnum):
     @classmethod
     def to_list(cls, get_values=True):
         attr = 'name'
