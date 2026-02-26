@@ -61,7 +61,7 @@ class TestUpdateShowtimeRouter(_TestBaseShowtimeEndpoints):
             (lambda _, __, screen: {'screen_id': screen().id}, 'screen_id'),
             (
                 lambda x, *_: {
-                    'start_time': x.date_between(start_date='now', end_date='+10d').strftime(DEFAULT_DATETIME_FORMAT)
+                    'start_time': x.date_between(start_date='+1d', end_date='+10d').strftime(DEFAULT_DATETIME_FORMAT)
                 },
                 'start_time',
             ),

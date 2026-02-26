@@ -27,4 +27,4 @@ class Showtime(UUIDPKMixin, CreatedUpdatedMixin, SQLModel, table=True):
 
     @property
     def end_time(self):
-        return self.start_time + timedelta(minutes=self.movie.duration)
+        return self.start_time + timedelta(minutes=self.movie.duration)  # pylint: disable=no-member
