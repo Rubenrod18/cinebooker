@@ -11,7 +11,7 @@ from tests.common.factories.invoice_factory import InvoiceItemFactory, IssuedInv
 from tests.common.factories.showtime_factory import EnabledShowtimeFactory
 
 
-class TestUpdateShowtimeRouter(_TestBaseBookingEndpoints):
+class TestUpdateBookingRouter(_TestBaseBookingEndpoints):
     def test_not_found(self):
         response = self.client.patch(url=f'{self.base_path}/{uuid.uuid4()}', json={}, exp_code=404)
         json_response = response.json()
