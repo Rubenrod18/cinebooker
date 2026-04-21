@@ -18,7 +18,7 @@ dependencies = [
     "qrcode[pil]>=8.2",
     "sqlmodel>=0.0.23",
     "stripe>=13.0.1",
-    "uvicorn[standard]>=0.44.0",
+    "uvicorn[standard]>=0.45.0",
 ]
 
 [dependency-groups]
