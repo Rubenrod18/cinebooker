@@ -28,6 +28,6 @@ dev = [
     "faker>=40.23.0",
     "pre-commit>=4.6.0",
     "pylint>=3.3.7",
-    "pytest>=8.3.5",
+    "pytest>=9.1.0",
     "pytest-xdist>=3.8.0",
 ]
