@@ -27,7 +27,7 @@ dev = [
     "factory-boy>=3.3.3",
     "faker>=40.23.0",
     "pre-commit>=4.6.0",
-    "pylint>=4.0.6",
+    "pylint>=4.0.7",
     "pytest>=9.1.1",
     "pytest-xdist>=3.8.0",
 ]
