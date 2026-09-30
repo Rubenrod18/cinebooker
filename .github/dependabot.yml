@@ -26,7 +26,7 @@ updates:
     timezone: Europe/Madrid
   allow:
     - dependency-type: "all"
-  open-pull-requests-limit: 10
+  open-pull-requests-limit: 30
   commit-message:
     prefix: "build(pip): "
 - package-ecosystem: github-actions
