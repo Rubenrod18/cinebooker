@@ -4,7 +4,7 @@ updates:
 - package-ecosystem: docker
   directory: "/docker"
   schedule:
-    interval: weekly
+    interval: monthly
     day: "monday"
     time: "02:00"
     timezone: Europe/Madrid
@@ -14,14 +14,14 @@ updates:
 - package-ecosystem: docker-compose
   directory: "/"
   schedule:
-    interval: weekly
+    interval: monthly
   open-pull-requests-limit: 10
   commit-message:
     prefix: "build(docker-compose): "
 - package-ecosystem: uv
   directory: "/src"
   schedule:
-    interval: daily
+    interval: monthly
     time: "01:00"
     timezone: Europe/Madrid
   allow:
@@ -32,7 +32,7 @@ updates:
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
-    interval: "weekly"
+    interval: monthly
   open-pull-requests-limit: 10
   commit-message:
     prefix: "ci(github-actions): "
