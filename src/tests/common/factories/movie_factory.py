@@ -16,7 +16,7 @@ class MovieFactory(BaseFactory):
     title = factory.Sequence(lambda n: f'Movie title {n}')
     description = factory.Sequence(lambda n: f'Movie description {n}')
     duration = factory.Faker('pyint', min_value=60, max_value=240)
-    release_date = factory.Faker('date_between', start_date='-30y', end_date='-5y', tzinfo=UTC)
+    release_date = factory.Faker('date_between', start_date='-30y', end_date='-5y')
     genre = factory.Iterator(MovieGenre.to_list())
     director = factory.Faker('name')
     language = factory.Faker('language_name')
