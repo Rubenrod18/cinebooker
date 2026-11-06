@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, UTC
 
 import factory
 
@@ -18,7 +18,7 @@ class TicketFactory(BaseFactory):
     barcode_value = factory.Sequence(lambda n: f'Barcode_{n}')
     barcode_type = factory.Iterator(TicketBarcodeType.to_list())
     status = factory.Iterator(TicketStatus.to_list())
-    issued_at = factory.Faker('date_time_between', start_date='-3y', end_date='now')
+    issued_at = factory.Faker('date_time_between', start_date='-3y', end_date='now', tzinfo=UTC)
 
     @factory.lazy_attribute
     def redeemed_at(self):

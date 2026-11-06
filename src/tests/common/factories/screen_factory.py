@@ -1,5 +1,5 @@
 import random
-from datetime import timedelta
+from datetime import timedelta, UTC
 
 import factory
 
@@ -15,8 +15,8 @@ class ScreenFactory(BaseFactory):
     capacity = factory.LazyFunction(
         lambda: random.randrange(70, 201, 2)  # start=50, stop=201, step=2 → only even numbers
     )
-    created_at = factory.Faker('date_time_between', start_date='-3y', end_date='now')
-    updated_at = factory.Faker('date_time_between', start_date='-1y', end_date='now')
+    created_at = factory.Faker('date_time_between', start_date='-3y', end_date='now', tzinfo=UTC)
+    updated_at = factory.Faker('date_time_between', start_date='-1y', end_date='now', tzinfo=UTC)
 
     @factory.lazy_attribute
     def inactive_at(self):

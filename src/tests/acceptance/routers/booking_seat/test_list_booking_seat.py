@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 
 import pytest
 
@@ -14,7 +14,7 @@ from tests.common.factories.booking_factory import (
 
 class TestListBookingSeatRouter(_TestBaseBookingSeatEndpoints):
     def test_list_booking_seats(self):
-        current_dt = datetime.now()
+        current_dt = datetime.now(UTC)
         booking_seat = ConfirmedBookingSeatFactory(created_at=current_dt - timedelta(days=1))
         booking_seat_2 = PendingPaymentBookingSeatFactory(created_at=current_dt)
         booking_seat_3 = ExpiredBookingSeatFactory(created_at=current_dt)

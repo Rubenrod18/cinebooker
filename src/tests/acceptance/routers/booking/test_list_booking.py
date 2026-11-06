@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 
 import pytest
 
@@ -8,7 +8,7 @@ from tests.common.factories.booking_factory import EnabledBookingFactory, Expire
 
 class TestListBookingRouter(_TestBaseBookingEndpoints):
     def test_list_bookings(self):
-        current_dt = datetime.now()
+        current_dt = datetime.now(UTC)
         booking = EnabledBookingFactory(created_at=current_dt - timedelta(days=1))
         booking_2 = EnabledBookingFactory(created_at=current_dt)
         ExpiredBookingFactory(created_at=current_dt)

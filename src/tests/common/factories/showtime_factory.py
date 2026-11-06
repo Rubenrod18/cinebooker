@@ -1,3 +1,5 @@
+from datetime import UTC
+
 import factory
 
 from app.models import Showtime
@@ -14,7 +16,7 @@ class ShowtimeFactory(BaseFactory):
     movie = factory.SubFactory(MovieFactory)
     screen = factory.SubFactory(ScreenFactory)
 
-    start_time = factory.Faker('date_time_between', start_date='now', end_date='+1y')
+    start_time = factory.Faker('date_time_between', start_date='now', end_date='+1y', tzinfo=UTC)
     base_price = factory.Faker('pydecimal', left_digits=2, right_digits=2, positive=True, min_value=5, max_value=20)
     vat_rate = factory.Faker('pydecimal', left_digits=1, right_digits=2, positive=True, min_value=0.05, max_value=0.25)
 

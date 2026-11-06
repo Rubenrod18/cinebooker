@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, UTC
 
 import factory
 
@@ -25,8 +25,8 @@ class BookingFactory(BaseFactory):
     )
 
     status = factory.Iterator(BookingStatus.to_list())
-    created_at = factory.Faker('date_time_between', start_date='-3y', end_date='now')
-    updated_at = factory.Faker('date_time_between', start_date='-1y', end_date='now')
+    created_at = factory.Faker('date_time_between', start_date='-3y', end_date='now', tzinfo=UTC)
+    updated_at = factory.Faker('date_time_between', start_date='-1y', end_date='now', tzinfo=UTC)
 
     @factory.lazy_attribute
     def expired_at(self):

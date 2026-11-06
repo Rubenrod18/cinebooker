@@ -1,5 +1,5 @@
 import random
-from datetime import timedelta
+from datetime import timedelta, UTC
 
 import factory
 
@@ -16,8 +16,8 @@ class SeatFactory(BaseFactory):
 
     number = factory.Sequence(lambda n: n + 1)
     row = factory.Sequence(lambda n: n + 1)
-    created_at = factory.Faker('date_time_between', start_date='-3y', end_date='now')
-    updated_at = factory.Faker('date_time_between', start_date='-1y', end_date='now')
+    created_at = factory.Faker('date_time_between', start_date='-3y', end_date='now', tzinfo=UTC)
+    updated_at = factory.Faker('date_time_between', start_date='-1y', end_date='now', tzinfo=UTC)
 
     @factory.lazy_attribute
     def inactive_at(self):

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 
 import pytest
 
@@ -9,7 +9,7 @@ from tests.common.factories.discount_factory import DisabledDiscountFactory, Ena
 
 class TestListDiscountRouter(_TestBaseDiscountEndpoints):
     def test_list_discounts(self):
-        current_dt = datetime.now()
+        current_dt = datetime.now(UTC)
         discount = EnabledDiscountFactory(created_at=current_dt - timedelta(days=1), expires_at=None)
         discount_2 = EnabledDiscountFactory(created_at=current_dt, expires_at=None)
         DisabledDiscountFactory(created_at=current_dt, expires_at=None)

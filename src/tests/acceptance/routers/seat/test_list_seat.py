@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 
 import pytest
 
@@ -9,7 +9,7 @@ from tests.common.factories.seat_factory import DisabledSeatFactory, EnabledSeat
 
 class TestListSeatRouter(_TestBaseSeatEndpoints):
     def test_list_seats(self):
-        current_dt = datetime.now()
+        current_dt = datetime.now(UTC)
         seat = EnabledSeatFactory(created_at=current_dt - timedelta(days=1))
         seat_2 = EnabledSeatFactory(created_at=current_dt)
         DisabledSeatFactory(created_at=current_dt)
