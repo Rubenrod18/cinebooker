@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 
 import pytest
 
@@ -9,7 +9,7 @@ from tests.common.factories.showtime_factory import ShowtimeFactory
 
 class TestListShowtimeRouter(_TestBaseShowtimeEndpoints):
     def test_list_showtimes(self):
-        current_dt = datetime.now()
+        current_dt = datetime.now(UTC)
         showtime = ShowtimeFactory(created_at=current_dt - timedelta(days=1))
         showtime_2 = ShowtimeFactory(created_at=current_dt)
         showtimes = [showtime, showtime_2]

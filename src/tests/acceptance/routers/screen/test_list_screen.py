@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 
 import pytest
 
@@ -9,7 +9,7 @@ from tests.common.factories.screen_factory import DisabledScreenFactory, Enabled
 
 class TestListScreenRouter(_TestBaseScreenEndpoints):
     def test_list_screens(self):
-        current_dt = datetime.now()
+        current_dt = datetime.now(UTC)
         screen = EnabledScreenFactory(created_at=current_dt - timedelta(days=1))
         screen_2 = EnabledScreenFactory(created_at=current_dt)
         DisabledScreenFactory(created_at=current_dt)

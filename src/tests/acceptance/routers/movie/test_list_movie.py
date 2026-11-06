@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 
 import pytest
 
@@ -9,7 +9,7 @@ from tests.common.factories.movie_factory import DisabledMovieFactory, EnabledMo
 
 class TestListMovieRouter(_TestBaseMovieEndpoints):
     def test_list_movies(self):
-        current_dt = datetime.now()
+        current_dt = datetime.now(UTC)
         movie = EnabledMovieFactory(created_at=current_dt - timedelta(days=1))
         movie_2 = EnabledMovieFactory(created_at=current_dt)
         DisabledMovieFactory(created_at=current_dt)
