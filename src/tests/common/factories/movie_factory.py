@@ -1,5 +1,5 @@
 import random
-from datetime import timedelta
+from datetime import timedelta, UTC
 
 import factory
 
@@ -16,12 +16,12 @@ class MovieFactory(BaseFactory):
     title = factory.Sequence(lambda n: f'Movie title {n}')
     description = factory.Sequence(lambda n: f'Movie description {n}')
     duration = factory.Faker('pyint', min_value=60, max_value=240)
-    release_date = factory.Faker('date_between', start_date='-30y', end_date='-5y')
+    release_date = factory.Faker('date_between', start_date='-30y', end_date='-5y', tzinfo=UTC)
     genre = factory.Iterator(MovieGenre.to_list())
     director = factory.Faker('name')
     language = factory.Faker('language_name')
-    created_at = factory.Faker('date_time_between', start_date='-3y', end_date='now')
-    updated_at = factory.Faker('date_time_between', start_date='-1y', end_date='now')
+    created_at = factory.Faker('date_time_between', start_date='-3y', end_date='now', tzinfo=UTC)
+    updated_at = factory.Faker('date_time_between', start_date='-1y', end_date='now', tzinfo=UTC)
 
     @factory.lazy_attribute
     def inactive_at(self):

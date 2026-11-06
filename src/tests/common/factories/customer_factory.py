@@ -1,3 +1,5 @@
+from datetime import UTC
+
 import factory
 
 from app.models import Customer
@@ -10,7 +12,7 @@ class CustomerFactory(BaseFactory):
     class Meta:
         model = Customer
 
-    birth_date = factory.Faker('date_between', start_date='-30y', end_date='-5y')
+    birth_date = factory.Faker('date_between', start_date='-30y', end_date='-5y', tzinfo=UTC)
     auth_user = factory.SubFactory(AuthUserFactory)
 
 
